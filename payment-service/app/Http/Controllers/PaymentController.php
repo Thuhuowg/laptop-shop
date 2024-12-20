@@ -7,17 +7,6 @@ use Illuminate\Http\Request;
 
 class PaymentController extends Controller
 {
-    public function thankYou()
-    {
-        return view('payments.thank_you');  // Trả về trang cảm ơn
-    }
-
-    // Hiển thị form tạo thanh toán mới
-    public function create()
-    {
-        return view('payments.create');  // Trả về form tạo thanh toán
-    }
-
     // Lưu thanh toán mới vào cơ sở dữ liệu
     public function store(Request $request)
     {
@@ -32,15 +21,15 @@ class PaymentController extends Controller
         // Tạo thanh toán mới và lưu vào cơ sở dữ liệu
         $payment = Payment::create($data);
 
-        // Redirect về danh sách thanh toán sau khi lưu
-        return redirect()->route('payments.index');
+        // Trả về thông tin thanh toán vừa lưu
+        return response()->json(['message' => 'Payment created successfully', 'payment' => $payment], 201);
     }
 
     // Hiển thị danh sách thanh toán
     public function index()
     {
         $payments = Payment::all();
-        return view('payments.index', compact('payments'));
+        return response()->json($payments);
     }
 
     // Hiển thị thông tin thanh toán theo ID
@@ -52,48 +41,51 @@ class PaymentController extends Controller
             return response()->json(['error' => 'Payment not found'], 404);
         }
 
-        return view('payments.show', compact('payment'));
+        return response()->json($payment);
     }
+
+    // Cập nhật thanh toán
     public function update(Request $request, $id)
-{
-    // Xác thực dữ liệu từ form
-    $data = $request->validate([
-        'order_id' => 'required|integer',
-        'payment_method' => 'required|string|max:50',
-        'payment_status' => 'required|string|max:50',
-        'amount' => 'required|numeric',
-    ]);
+    {
+        // Xác thực dữ liệu từ form
+        $data = $request->validate([
+            'order_id' => 'required|integer',
+            'payment_method' => 'required|string|max:50',
+            'payment_status' => 'required|string|max:50',
+            'amount' => 'required|numeric',
+        ]);
 
-    // Tìm thanh toán theo ID
-    $payment = Payment::find($id);
+        // Tìm thanh toán theo ID
+        $payment = Payment::find($id);
 
-    if (!$payment) {
-        return response()->json(['error' => 'Payment not found'], 404);
-    }
+        if (!$payment) {
+            return response()->json(['error' => 'Payment not found'], 404);
+        }
 
-    // Cập nhật thông tin thanh toán
-    $payment->update($data);
+        // Cập nhật thông tin thanh toán
+        $payment->update($data);
 
-    // Trả về thông báo thành công
-    return response()->json(['message' => 'Payment updated successfully'], 200);
-}
-
-// Xóa thanh toán
-public function destroy($id)
-{
-    // Tìm thanh toán theo ID
-    $payment = Payment::find($id);
-
-    if (!$payment) {
-        return response()->json(['error' => 'Payment not found'], 404);
+        // Trả về thông báo thành công
+        return response()->json(['message' => 'Payment updated successfully', 'payment' => $payment]);
     }
 
     // Xóa thanh toán
-    $payment->delete();
+    public function destroy($id)
+    {
+        // Tìm thanh toán theo ID
+        $payment = Payment::find($id);
 
-    // Trả về thông báo thành công
-    return response()->json(['message' => 'Payment deleted successfully'], 200);
-}
+        if (!$payment) {
+            return response()->json(['error' => 'Payment not found'], 404);
+        }
+
+        // Xóa thanh toán
+        $payment->delete();
+
+        // Trả về thông báo thành công
+        return response()->json(['message' => 'Payment deleted successfully']);
+    }
+
     // Hàm gửi yêu cầu POST cho MoMo
     private function execPostRequest($url, $data)
     {
@@ -107,14 +99,11 @@ public function destroy($id)
         ]);
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
-        // Bỏ qua chứng chỉ SSL (không khuyến khích cho môi trường sản xuất)
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
         $result = curl_exec($ch);
         if (curl_errno($ch)) {
-            echo 'Lỗi cURL: ' . curl_error($ch);  // In ra lỗi cURL nếu có
-        } else {
-            echo 'Kết quả: ' . $result;  // In ra kết quả trả về nếu không có lỗi
+            return response()->json(['error' => 'cURL error: ' . curl_error($ch)], 500);
         }
         curl_close($ch);
 
@@ -125,21 +114,18 @@ public function destroy($id)
     public function online_checkout(Request $request)
     {
         if ($request->has('cod')) {
-            // Xử lý thanh toán COD
-            echo 'Thanh toán COD';
+            return response()->json(['message' => 'Thanh toán COD']);
         } elseif ($request->has('payUrl')) {
             $endpoint = "https://test-payment.momo.vn/v2/gateway/api/create";
-
             $partnerCode = 'MOMOBKUN20180529';
             $accessKey = 'klm05TvNBzhg7h7j';
             $secretKey = 'at67qH6mk8w5Y1nAyMoYKMWACiEi2bsa';
             $orderInfo = "Thanh toán qua MoMo";
             $amount = "10000";
-            $orderId = rand(00,9999);  // Tạo mã đơn hàng ngẫu nhiên
+            $orderId = rand(00, 9999);  // Tạo mã đơn hàng ngẫu nhiên
             $redirectUrl = route('thank-you');  // Sử dụng route() thay vì URL cố định
             $ipnUrl = route('thank-you');
             $extraData = "";
-
             $requestId = time() . "";
             $requestType = "payWithATM";
 
@@ -169,94 +155,60 @@ public function destroy($id)
 
             // Kiểm tra phản hồi JSON
             if ($jsonResult === null) {
-                echo 'Lỗi: Phản hồi JSON không hợp lệ';
-            } else {
-                if (isset($jsonResult['payUrl'])) {
-                    // Chuyển hướng người dùng đến URL thanh toán của MoMo
-                    return redirect()->to($jsonResult['payUrl']);
-                }   
+                return response()->json(['error' => 'Invalid JSON response'], 500);
             }
-        } 
-        elseif ($request->has('redirect')) {
+
+            if (isset($jsonResult['payUrl'])) {
+                return response()->json(['payUrl' => $jsonResult['payUrl']]);
+            }
+        } elseif ($request->has('redirect')) {
             // Xử lý thanh toán VNPay
             $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    $vnp_Returnurl = route('thank-you');
-    $vnp_TmnCode = "LNYT5TSP";//Mã website tại VNPAY 
-    $vnp_HashSecret = "ZBUPSXKHMI3CUXLWM7Y7GKYW8PP8A4SN"; //Chuỗi bí mật
-    
-    $vnp_TxnRef = rand(00,9999); //Mã đơn hàng. Trong thực tế Merchant cần insert đơn hàng vào DB và gửi mã này 
-   
-    $vnp_OrderInfo = 'Thanh toán đơn hàng test';
-    $vnp_OrderType = 'billpayment';
-    $vnp_Amount = 20000 * 100;
-    $vnp_Locale = 'vn';
-    $vnp_BankCode = 'NCB';
-    $vnp_IpAddr = $_SERVER['REMOTE_ADDR'];
-    //Add Params of 2.0.1 Version
-    // $vnp_ExpireDate = $_POST['txtexpire'];
-    //Billing
-    
-    if (isset($fullName) && trim($fullName) != '') {
-        $name = explode(' ', $fullName);
-        $vnp_Bill_FirstName = array_shift($name);
-        $vnp_Bill_LastName = array_pop($name);
-    }
-    
-    $inputData = array(
-        "vnp_Version" => "2.1.0",
-        "vnp_TmnCode" => $vnp_TmnCode,
-        "vnp_Amount" => $vnp_Amount,
-        "vnp_Command" => "pay",
-        "vnp_CreateDate" => date('YmdHis'),
-        "vnp_CurrCode" => "VND",
-        "vnp_IpAddr" => $vnp_IpAddr,
-        "vnp_Locale" => $vnp_Locale,
-        "vnp_OrderInfo" => $vnp_OrderInfo,
-        "vnp_OrderType" => $vnp_OrderType,
-        "vnp_ReturnUrl" => $vnp_Returnurl,
-        "vnp_TxnRef" => $vnp_TxnRef
-        // "vnp_ExpireDate"=>$vnp_ExpireDate
-        
-    );
-    
-    if (isset($vnp_BankCode) && $vnp_BankCode != "") {
-        $inputData['vnp_BankCode'] = $vnp_BankCode;
-    }
-    if (isset($vnp_Bill_State) && $vnp_Bill_State != "") {
-        $inputData['vnp_Bill_State'] = $vnp_Bill_State;
-    }
-    
-    //var_dump($inputData);
-    ksort($inputData);
-    $query = "";
-    $i = 0;
-    $hashdata = "";
-    foreach ($inputData as $key => $value) {
-        if ($i == 1) {
-            $hashdata .= '&' . urlencode($key) . "=" . urlencode($value);
-        } else {
-            $hashdata .= urlencode($key) . "=" . urlencode($value);
-            $i = 1;
+            $vnp_Returnurl = route('thank-you');
+            $vnp_TmnCode = "LNYT5TSP"; // Mã website tại VNPAY
+            $vnp_HashSecret = "ZBUPSXKHMI3CUXLWM7Y7GKYW8PP8A4SN"; // Chuỗi bí mật
+            
+            $vnp_TxnRef = rand(00, 9999); // Mã đơn hàng
+            $vnp_OrderInfo = 'Thanh toán đơn hàng test';
+            $vnp_Amount = 20000 * 100;
+            $vnp_Locale = 'vn';
+            $vnp_BankCode = 'NCB';
+            $vnp_IpAddr = $_SERVER['REMOTE_ADDR'];
+
+            $inputData = array(
+                "vnp_Version" => "2.1.0",
+                "vnp_TmnCode" => $vnp_TmnCode,
+                "vnp_Amount" => $vnp_Amount,
+                "vnp_Command" => "pay",
+                "vnp_CreateDate" => date('YmdHis'),
+                "vnp_CurrCode" => "VND",
+                "vnp_IpAddr" => $vnp_IpAddr,
+                "vnp_Locale" => $vnp_Locale,
+                "vnp_OrderInfo" => $vnp_OrderInfo,
+                "vnp_OrderType" => 'billpayment',
+                "vnp_ReturnUrl" => $vnp_Returnurl,
+                "vnp_TxnRef" => $vnp_TxnRef
+            );
+
+            ksort($inputData);
+            $query = "";
+            $i = 0;
+            $hashdata = "";
+            foreach ($inputData as $key => $value) {
+                if ($i == 1) {
+                    $hashdata .= '&' . urlencode($key) . "=" . urlencode($value);
+                } else {
+                    $hashdata .= urlencode($key) . "=" . urlencode($value);
+                    $i = 1;
+                }
+                $query .= urlencode($key) . "=" . urlencode($value) . '&';
+            }
+
+            $vnp_Url = $vnp_Url . "?" . $query;
+            $vnpSecureHash = hash_hmac('sha512', $hashdata, $vnp_HashSecret);
+            $vnp_Url .= 'vnp_SecureHash=' . $vnpSecureHash;
+
+            return response()->json(['vnp_Url' => $vnp_Url]);
         }
-        $query .= urlencode($key) . "=" . urlencode($value) . '&';
-    }
-    
-    $vnp_Url = $vnp_Url . "?" . $query;
-    if (isset($vnp_HashSecret)) {
-        $vnpSecureHash =   hash_hmac('sha512', $hashdata, $vnp_HashSecret);//  
-        $vnp_Url .= 'vnp_SecureHash=' . $vnpSecureHash;
-    }
-    $returnData = array('code' => '00'
-        , 'message' => 'success'
-        , 'data' => $vnp_Url);
-        if (isset($_POST['redirect'])) {
-            header('Location: ' . $vnp_Url);
-            die();
-        } else {
-            echo json_encode($returnData);
-        }
-        // vui lòng tham khảo thêm tại code demo
-        }
-        
     }
 }
