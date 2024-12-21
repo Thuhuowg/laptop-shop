@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sửa Thanh Toán | Laptop-Shoppe</title>
+    <link href="/fe/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/fe/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/fe/css/prettyPhoto.css" rel="stylesheet">
+    <link href="/fe/css/price-range.css" rel="stylesheet">
+    <link href="/fe/css/animate.css" rel="stylesheet">
+    <link href="/fe/css/sweetalert.css" rel="stylesheet">
+    <link href="/fe/css/main.css" rel="stylesheet">
+    <link href="/fe/css/responsive.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Chèn Header -->
+    <div id="header-container"></div>
+
+    <div class="container mt-5">
+        <h1>Sửa Thanh Toán</h1>
+        <form id="editPaymentForm">
+            <div class="form-group">
+                <label for="order_id">Mã Đơn Hàng</label>
+                <input type="text" class="form-control" id="order_id" disabled>
+            </div>
+            <div class="form-group">
+                <label for="payment_method">Phương Thức Thanh Toán</label>
+                <input type="text" class="form-control" id="payment_method">
+            </div>
+            <div class="form-group">
+                <label for="payment_status">Trạng Thái Thanh Toán</label>
+                <input type="text" class="form-control" id="payment_status">
+            </div>
+            <div class="form-group">
+                <label for="amount">Tổng Tiền</label>
+                <input type="number" class="form-control" id="amount">
+            </div>
+            <button type="submit" class="btn btn-success">Lưu Thay Đổi</button>
+        </form>
+    </div>
+
+    <!-- Chèn Footer -->
+    <div id="footer-container"></div>
+
+    <script>
+        const apiUrl = "http://localhost:8000/api/payments"; // URL API của bạn
+        const paymentId = new URLSearchParams(window.location.search).get('id'); // Lấy ID thanh toán từ URL
+
+        if (!paymentId) {
+            alert("Không tìm thấy ID thanh toán.");
+            window.location.href = "dspayment.html"; // Quay lại trang danh sách nếu không có ID
+        }
+
+        // Lấy thông tin thanh toán từ API
+        function fetchPaymentDetails() {
+            fetch(`${apiUrl}/${paymentId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Không tìm thấy thông tin thanh toán.");
+                    }
+                    return response.json();
+                })
+                .then(payment => {
+                    // Hiển thị dữ liệu vào form
+                    document.getElementById("order_id").value = payment.order_id;
+                    document.getElementById("payment_method").value = payment.payment_method;
+                    document.getElementById("payment_status").value = payment.payment_status;
+                    document.getElementById("amount").value = payment.amount;
+                })
+                .catch(error => {
+                    console.error("Error fetching payment:", error);
+                    alert("Không tìm thấy thông tin thanh toán.");
+                    window.location.href = "dspayment.html"; // Quay lại danh sách nếu có lỗi
+                });
+        }
+
+        // Cập nhật thông tin thanh toán
+        document.getElementById("editPaymentForm").addEventListener("submit", function(event) {
+            event.preventDefault(); // Ngừng việc gửi form mặc định
+
+            const updatedPayment = {
+                
+                payment_method: document.getElementById("payment_method").value,
+                payment_status: document.getElementById("payment_status").value,
+                amount: document.getElementById("amount").value
+            };
+
+            // Gửi yêu cầu PUT tới API để cập nhật thông tin trong CSDL
+            fetch(`${apiUrl}/${paymentId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedPayment)
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message || "Cập nhật thành công!");
+                window.location.href = "dspayment.html"; // Quay lại trang danh sách thanh toán
+            })
+            .catch(error => {
+                console.error("Error updating payment:", error);
+                alert("Có lỗi xảy ra khi cập nhật thanh toán.");
+            });
+        });
+
+        // Chèn Header
+        fetch('header.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('header-container').innerHTML = data;
+            });
+
+        // Chèn Footer
+        fetch('footer.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('footer-container').innerHTML = data;
+            });
+
+        // Gọi hàm fetchPaymentDetails khi trang được tải
+        document.addEventListener("DOMContentLoaded", fetchPaymentDetails);
+    </script>
+</body>
+</html>

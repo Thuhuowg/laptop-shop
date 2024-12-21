@@ -7,28 +7,28 @@ use Illuminate\Http\Request;
 class CartController extends Controller
 {
     // Lấy danh sách giỏ hàng của người dùng
-    public function index(Request $request)
+    public function index()
     {
-        // Giả sử bạn đã đăng nhập và lấy user_id từ session hoặc token
-        $userId = auth()->user()->id ?? 1; // Default user_id là 1 (hoặc có thể lấy từ session)
+        $userId = 1; // Sử dụng user_id mặc định (hoặc bạn có thể thay thế bằng giá trị phù hợp)
 
         $cartItems = CartItem::where('user_id', $userId)
             ->where('is_deleted', false)
             ->get();
 
-        return view('cart.index', compact('cartItems'));
+        return response()->json($cartItems, 200);
     }
 
     // Thêm sản phẩm vào giỏ hàng
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'user_id' => 'required|integer',
             'product_id' => 'required|string',
             'quantity' => 'required|integer|min:1',
         ]);
 
-        $existingItem = CartItem::where('user_id', $validated['user_id'])
+        $userId = 1; // Sử dụng user_id mặc định
+
+        $existingItem = CartItem::where('user_id', $userId)
             ->where('product_id', $validated['product_id'])
             ->where('is_deleted', false)
             ->first();
@@ -39,7 +39,11 @@ class CartController extends Controller
             return response()->json($existingItem, 200);
         }
 
-        $cartItem = CartItem::create($validated);
+        $cartItem = CartItem::create([
+            'user_id' => $userId,
+            'product_id' => $validated['product_id'],
+            'quantity' => $validated['quantity'],
+        ]);
 
         return response()->json($cartItem, 201);
     }
@@ -51,27 +55,39 @@ class CartController extends Controller
             'quantity' => 'required|integer|min:1',
         ]);
 
-        $cartItem = CartItem::findOrFail($id);
+        $userId = 1; // Sử dụng user_id mặc định
+
+        $cartItem = CartItem::where('cart_id', $id)
+            ->where('user_id', $userId)
+            ->where('is_deleted', false)
+            ->firstOrFail();
+
         $cartItem->update(['quantity' => $validated['quantity']]);
 
-        return response()->json($cartItem);
+        return response()->json($cartItem, 200);
     }
 
     // Xóa sản phẩm khỏi giỏ hàng
     public function destroy($id)
     {
-        $cartItem = CartItem::findOrFail($id);
+        $userId = 1; // Sử dụng user_id mặc định
+
+        $cartItem = CartItem::where('cart_id', $id)
+            ->where('user_id', $userId)
+            ->where('is_deleted', false)
+            ->firstOrFail();
+
         $cartItem->update(['is_deleted' => true]);
 
-        return response()->json(['message' => 'Item removed from cart.']);
+        return response()->json(['message' => 'Item removed from cart.'], 200);
     }
 
     // Xóa toàn bộ giỏ hàng của người dùng
-    public function clear(Request $request)
+    public function clear()
     {
-        $userId = $request->input('user_id');
+        $userId = 1; // Sử dụng user_id mặc định
         CartItem::where('user_id', $userId)->update(['is_deleted' => true]);
 
-        return response()->json(['message' => 'Cart cleared.']);
+        return response()->json(['message' => 'Cart cleared.'], 200);
     }
 }
