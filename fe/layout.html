@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Home | Laptop-Shoppe</title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/css/prettyPhoto.css" rel="stylesheet">
+    <link href="/css/price-range.css" rel="stylesheet">
+    <link href="/css/animate.css" rel="stylesheet">
+    <link href="/css/sweetalert.css" rel="stylesheet">
+    <link href="/css/main.css" rel="stylesheet">
+    <link href="/css/responsive.css" rel="stylesheet">
+    <link rel="shortcut icon" href="/images/ico/favicon.ico">
+</head>
+
+<body>
+<header id="header">
+    <div class="header-middle">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-4">
+                    <div class="logo pull-left">
+                        <a href="/"><img src="/images/logolaptop.png" alt="Logo Laptop-Shoppe" /></a>
+                    </div>
+                </div>
+                <div class="col-sm-8">
+                    <div class="shop-menu pull-right">
+                        <ul class="nav navbar-nav">
+                            <li>
+                                <form id="search-form" class="search-bar">
+                                    <input type="text" id="search-input" class="search-input" placeholder="Tìm kiếm...">
+                                    <button type="button" id="search-button" class="btn btn-primary">Tìm</button>
+                                </form>
+                            </li>
+                            <li>
+                                <a href="tel:+84123456789">
+                                    <i class="fa fa-phone"></i> +84 123 456 789
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/cart">
+                                    <i class="fa fa-shopping-cart"></i> Giỏ hàng
+                                    <span id="cart-count" class="badge">0</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0);" id="user-icon">
+                                    <i class="fa fa-user"></i> Tài khoản
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div id="main-content">
+    <!-- Nội dung sẽ được tải động từ API -->
+</div>
+
+<footer id="footer">
+    <div class="footer-top">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-2">
+                    <div class="companyinfo">
+                        <h2><span>Laptop</span>-shoppe</h2>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor.</p>
+                    </div>
+                </div>
+                <div class="col-sm-7">
+                    <div class="col-sm-3">
+                        <div class="video-gallery text-center">
+                            <a href="/san-pham">
+                                <div class="iframe-img">
+                                    <img src="/images/footer1.webp" alt="Footer Image">
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="address">
+                        <img src="/images/map.png" alt="Address Map">
+                        <p>Km 10, đường Nguyễn Trãi, quận Thanh Xuân, Hà Nội</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <div class="container">
+            <div class="row">
+                <p class="pull-left">Copyright © 2024 Laptop-Shoppe. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- JavaScript -->
+<script src="/js/jquery.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/sweetalert.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Gọi API và tải nội dung
+        fetch('/api/cart')
+            .then(response => response.json())
+            .then(data => {
+                const content = document.getElementById('main-content');
+                content.innerHTML = data.map(item => `
+                    <div class="product">
+                        <h3>${item.name}</h3>
+                        <p>${item.description}</p>
+                        <button class="btn btn-primary add-to-cart" data-id="${item.id}">Thêm vào giỏ</button>
+                    </div>
+                `).join('');
+            });
+
+        // Xử lý tìm kiếm
+        document.getElementById('search-button').addEventListener('click', function () {
+            const query = document.getElementById('search-input').value;
+            fetch(`/api/search?query=${query}`)
+                .then(response => response.json())
+                .then(data => {
+                    alert(`Tìm thấy ${data.length} sản phẩm.`);
+                });
+        });
+    });
+</script>
+</body>
+</html>
