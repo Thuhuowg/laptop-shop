@@ -128,12 +128,12 @@
                         productItem.innerHTML = `
                             <div class="product">
                                 <div class="product-image">
-                                    <img src="${product.image_url}" alt="${product.product_name}">
+                                    <img src="/fe/images/product/${product.image_url}" alt="${product.product_name}" />
                                 </div>
                                 <div class="product-info">
                                     <h3>${product.product_name}</h3>
                                     <p class="product-price">${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price)}</p>
-                                    <p>${product.description}</p>
+                                    
                                 </div>
                                 <a href="#" class="btn btn-primary">Xem Chi Tiết</a>
                             </div>

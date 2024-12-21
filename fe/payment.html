@@ -80,7 +80,7 @@
                 payment_status: document.getElementById('payment_status').value,
                 amount: document.getElementById('amount').value
             };
-            fetch('http://127.0.0.1:8000/api/payments/create', {
+            fetch('http://127.0.0.1:8002/api/payments/create', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

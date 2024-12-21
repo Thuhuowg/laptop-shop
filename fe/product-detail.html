@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết sản phẩm | Laptop-Shoppe</title>
+    <link href="/fe/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/fe/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/fe/css/prettyPhoto.css" rel="stylesheet">
+    <link href="/fe/css/price-range.css" rel="stylesheet">
+    <link href="/fe/css/animate.css" rel="stylesheet">
+    <link href="/fe/css/sweetalert.css" rel="stylesheet">
+    <link href="/fe/css/main.css" rel="stylesheet">
+    <link href="/fe/css/responsive.css" rel="stylesheet">
+</head>
+<body>
+    <div id="header-container"></div>
+
+    <section>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="product-details">
+                        <!-- Product details will be dynamically added here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="footer-container"></div>
+
+    <script>
+        // Load Header and Footer
+        fetch('header.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('header-container').innerHTML = data;
+            });
+
+        fetch('footer.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('footer-container').innerHTML = data;
+            });
+
+        // Extract product_id from the URL
+        // Extract product_id from the URL
+        const urlParams = new URLSearchParams(window.location.search);
+const productId = urlParams.get('product_id');
+
+if (productId) {
+    fetch(`http://127.0.0.1:8000/api/v1/products/${productId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Product not found');
+            }
+            return response.json();
+        })
+        .then(product => {
+            if (!product) {
+                throw new Error('Product data is missing');
+            }
+
+            const productDetails = document.querySelector('.product-details');
+            if (product.category && product.discount) {
+                productDetails.innerHTML = `
+                    <div class="col-sm-5">
+                        
+                        <div class="view-product">
+                            <img src="/fe/images/product/${product.image_url}" alt="${product.product_name}" />
+                        </div>
+                    </div>
+                    <div class="col-sm-7">
+                        <div class="product-information">
+                            <h1>Chi Tiết Sản Phẩm</h1>
+                            <h2>${product.product_name}</h2>
+                            <p>Mã sản phẩm: ${product.product_id}</p>
+                            <p>Mô tả sản phẩm: ${product.description}</p>
+                            <span>
+                                <span>${new Intl.NumberFormat('vi-VN').format(product.price)} VNĐ</span>
+                                <label>Quantity:</label>
+                                <input class="cart_product_qty_${product.product_id}" name="qty" type="number" min="1" value="1" />
+                                <button type="button" class="btn btn-fefault cart add-to-cart">
+                                    <i class="fa fa-shopping-cart"></i> Thêm giỏ hàng
+                                </button>
+                            </span>
+                            <p><b>Tình trạng:</b> ${product.is_deleted === 0 ? 'Còn hàng' : 'Hết hàng'}</p>
+                            <p><b>Danh mục:</b> ${product.category ? product.category.category_name : 'Không có'}</p>
+                            <p><b>Giảm giá:</b> ${product.discount ? product.discount.discount_percent + '% off' : 'Không có'}</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                console.error('Category or Discount data is missing');
+            }
+        })
+        .catch(error => {
+            console.log('Error loading product details:', error);
+            alert('Không tìm thấy sản phẩm hoặc có lỗi trong việc tải thông tin');
+        });
+} else {
+    alert('Không tìm thấy sản phẩm!');
+}
+    </script>
+</body>
+</html>

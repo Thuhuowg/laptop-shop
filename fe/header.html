@@ -13,7 +13,6 @@
                             <li>
                                 <form id="search-form" class="search-bar">
                                     <input type="text" id="search-input" class="search-input" placeholder="Tìm kiếm...">
-                                    
                                 </form>
                             </li>
                             <li>
@@ -28,9 +27,11 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="javascript:void(0);" id="user-icon">
-                                    <i class="fa fa-user"></i> Tài khoản
-                                </a>
+                                <!-- Thêm dropdown cho đăng nhập và đăng ký -->
+                                <ul id="" class="">
+                                    <li><a href="/fe/login.html">Đăng nhập</a></li>
+                                    <li><a href="/fe/register.html">Đăng ký</a></li>
+                                </ul>
                             </li>
                         </ul>
                     </div>
@@ -39,3 +40,21 @@
         </div>
     </div>
 </header>
+
+<!-- Thêm JavaScript để hiển thị dropdown khi nhấn vào tài khoản -->
+<script>
+    // Lắng nghe sự kiện click trên biểu tượng tài khoản
+    document.getElementById('user-icon').addEventListener('click', function() {
+        var dropdown = document.getElementById('account-dropdown');
+        dropdown.style.display = (dropdown.style.display === 'block') ? 'none' : 'block';
+    });
+
+    // Đóng dropdown nếu người dùng click ra ngoài
+    document.addEventListener('click', function(event) {
+        var dropdown = document.getElementById('account-dropdown');
+        var userIcon = document.getElementById('user-icon');
+        if (!userIcon.contains(event.target) && !dropdown.contains(event.target)) {
+            dropdown.style.display = 'none';
+        }
+    });
+</script>

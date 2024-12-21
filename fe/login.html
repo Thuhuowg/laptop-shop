@@ -121,9 +121,8 @@
     document.getElementById('login-button').addEventListener('click', async () => {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
-
         try {
-            const response = await fetch('/api/login', {
+            const response = await fetch('http://127.0.0.1:8001/api/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -135,8 +134,8 @@
 
             if (response.ok) {
                 alert('Đăng nhập thành công!');
-                // Thực hiện điều hướng hoặc lưu token nếu cần
-                window.location.href = '/dashboard';
+                // Thực hiện điều hướng về trang home.html
+                window.location.href = 'http://127.0.0.1:5501/fe/home.html';  // Đảm bảo đường dẫn đúng
             } else {
                 alert(data.message || 'Đăng nhập thất bại!');
             }
