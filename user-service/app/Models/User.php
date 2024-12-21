@@ -3,26 +3,29 @@
 namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class User extends Authenticatable
+class User extends Authenticatable implements JWTSubject
 {
-    protected $table = 'User_PJ'; // Tên bảng trong cơ sở dữ liệu
-    protected $primaryKey = 'user_id'; // Tên khóa chính
-    public $timestamps = false; // Vì bảng không có cột timestamps mặc định
+    protected $table = 'user_pj'; // Tên bảng
+    protected $primaryKey = 'user_id';
 
     protected $fillable = [
         'username',
-        'password',
         'email',
+        'password',
         'phone_number',
         'address',
         'role_id',
-        'is_deleted'
     ];
 
-    // Nếu cần mã hóa mật khẩu trước khi lưu
-    public function setPasswordAttribute($password)
+    public function getJWTIdentifier()
     {
-        $this->attributes['password'] = bcrypt($password);
+        return $this->getKey();
+    }
+
+    public function getJWTCustomClaims()
+    {
+        return [];
     }
 }

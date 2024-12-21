@@ -1,9 +1,11 @@
 <?php
 
-use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -16,12 +18,20 @@ use App\Http\Controllers\UserController;
 |
 */
 
-Route::post('/users', [UserController::class, 'store']);
-Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [AuthController::class, 'login']);
-Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::group(['prefix' => 'auth'], function () {
+    // Đăng ký tài khoản
+    Route::post('/register', [AuthController::class, 'register']);
+
+    // Đăng nhập
+    Route::post('/login', [AuthController::class, 'login']);
+
+    // Lấy thông tin người dùng hiện tại (yêu cầu token JWT)
+    Route::middleware('auth:api')->get('/user', [AuthController::class, 'getUser']);
+
+    // Đăng xuất (yêu cầu token JWT)
+    Route::middleware('auth:api')->post('/logout', [AuthController::class, 'logout']);
+});
+
 Route::prefix('users')->group(function () {
     Route::get('/', [UserController::class, 'index'])->name('users.index');
     Route::get('/create', [UserController::class, 'create'])->name('users.create');

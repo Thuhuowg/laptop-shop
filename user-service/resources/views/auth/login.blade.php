@@ -11,9 +11,8 @@
             background-color: #f4f7fa;
         }
         .footer {
-            background-color: #00264d;
+            background-color: #FE980F;
             position: relative; /* Thay đổi vị trí từ fixed sang relative */
-            bottom: 0;
             width: 100%;
             padding: 20px;
             text-align: center;
@@ -92,14 +91,14 @@
                     </div>
 
                     <div class="text-center text-lg-start">
-                        <button type="submit" class="btn btn-primary btn-lg px-5 py-2">Login</button>
+                        <button type="submit" class="btn btn-warning btn-lg px-5 py-2">Login</button>
                         <p class="small fw-bold mt-2 pt-1 mb-0">Don't have an account? <a href="{{ route('register') }}" class="link-danger">Register</a></p>
                     </div>
                 </form>
             </div>
         </div>
     </div>
-    <footer class="footer py-4 text-white text-center fixed-bottom">
+    <footer class="footer mb-5 py-4 text-white text-center fixed-bottom">
         <div>Copyright &copy; 2024. All rights reserved.</div>
         <div class="social-links mt-3">
             <a href="#" class="text-white me-4">

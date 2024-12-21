@@ -87,12 +87,12 @@
                         </div>
 
                         <!-- Submit button -->
-                        <button type="submit" class="btn btn-primary btn-lg btn-block w-100" style="display: block; margin: 0 auto;">Đăng ký</button>
+                        <button type="submit" class="btn btn-warning btn-lg btn-block w-100" style="display: block; margin: 0 auto;">Đăng ký</button>
 
 
                         <!-- Link đến form đăng nhập -->
                         <div class="text-center mt-3">
-                            <p>Đã có tài khoản? <a href="/login">Đăng nhập ngay</a></p>
+                            <p>Đã có tài khoản? <a href="/login" class="text-warning">Đăng nhập ngay</a></p>
                         </div>
                     </form>
                 </div>

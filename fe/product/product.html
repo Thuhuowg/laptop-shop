@@ -116,7 +116,7 @@
 
         document.addEventListener('DOMContentLoaded', function () {
             // Gọi API và tải nội dung sản phẩm
-            fetch('http://127.0.0.1:8000/api/v1/products')
+            fetch('http://127.0.0.1:8001/api/v1/products')
                 .then(response => response.json())
                 .then(data => {
                     const productGrid = document.getElementById('product-grid');

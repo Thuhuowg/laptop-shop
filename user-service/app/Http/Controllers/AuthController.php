@@ -2,85 +2,89 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Auth;
-use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\DB; // Để làm việc trực tiếp với database
-use Illuminate\Support\Facades\Session; // Để quản lý session
+use Tymon\JWTAuth\Facades\JWTAuth;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use App\Models\User;
 
 class AuthController extends Controller
 {
-    // Hiển thị form đăng ký
-    public function showRegistrationForm()
-    {
-        return view('auth.register');
-    }
-
-    // Đăng ký tài khoản - Lưu thông tin trực tiếp vào DB
+    // Đăng ký tài khoản mới
     public function register(Request $request)
     {
         // Xác thực dữ liệu đầu vào
         $validator = Validator::make($request->all(), [
-            'username' => 'required|unique:user_pj,username',
-            'email' => 'required|email|unique:user_pj,email',
+            'username' => 'required|unique:users,username',
+            'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6|confirmed',
-            'phone_number'=> 'required',
-            'address'=> 'required',          
+            'phone_number' => 'required',
+            'address' => 'required',
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
+            return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        // Lưu thông tin trực tiếp vào cơ sở dữ liệu
-        DB::table('user_pj')->insert([
-            'username' => $request->input('username'),
-            'email' => $request->input('email'),
-            'password' => $request->input('password'), // Lưu mật khẩu thô vào DB
-            'phone_number' => $request->input('phone_number'),
-            'address' => $request->input('address'),
-            'role_id' => 1,
-        ]);
+        try {
+            // Lưu thông tin người dùng vào cơ sở dữ liệu (mã hóa mật khẩu)
+            $user = User::create([
+                'username' => $request->username,
+                'email' => $request->email,
+                'password' => Hash::make($request->password), // Mã hóa mật khẩu
+                'phone_number' => $request->phone_number,
+                'address' => $request->address,
+                'role_id' => 1, // Gán role mặc định
+            ]);
 
-        return redirect('/login')->with('success', 'Đăng ký tài khoản thành công!');
+            return response()->json(['message' => 'Đăng ký thành công!', 'user' => $user], 201);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Không thể tạo tài khoản: ' . $e->getMessage()], 500);
+        }
     }
 
-    // Hiển thị form đăng nhập
-    public function showLoginForm()
-    {
-        return view('auth.login');
-    }
-
-    // Đăng nhập người dùng
+    // Đăng nhập
     public function login(Request $request)
     {
         // Xác thực dữ liệu đầu vào
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
+        $credentials = $request->only('email', 'password');
 
-        // Kiểm tra thông tin đăng nhập
-        $user = DB::table('user_pj')->where('email', $request->email)->first();
+        try {
+            // Kiểm tra thông tin đăng nhập và lấy token
+            if (!$token = JWTAuth::attempt($credentials)) {
+                return response()->json(['error' => 'Email hoặc mật khẩu không chính xác'], 401);
+            }
 
-        // Kiểm tra người dùng có tồn tại và mật khẩu có đúng không
-        if ($user && $user->password === $request->password) {
-            // Mật khẩu trùng khớp
-            return redirect('/users')->with('success', 'Login successful!');
+            return response()->json([
+                'message' => 'Đăng nhập thành công!',
+                'token' => $token,
+                'user' => JWTAuth::user(), // Lấy thông tin người dùng sau khi đăng nhập
+            ], 200);
+        } catch (JWTException $e) {
+            return response()->json(['error' => 'Không thể tạo token'], 500);
         }
+    }
 
-        return redirect()->back()->with('error', 'Invalid credentials');
+    // Lấy thông tin người dùng hiện tại
+    public function getUser()
+    {
+        try {
+            $user = JWTAuth::parseToken()->authenticate(); // Xác thực token và lấy thông tin người dùng
+            return response()->json($user, 200);
+        } catch (JWTException $e) {
+            return response()->json(['error' => 'Token không hợp lệ hoặc đã hết hạn'], 401);
+        }
     }
 
     // Đăng xuất
-    public function logout(Request $request)
+    public function logout()
     {
-        Auth::logout();
-
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return redirect('/login');
+        try {
+            JWTAuth::invalidate(JWTAuth::getToken()); // Hủy token
+            return response()->json(['message' => 'Đăng xuất thành công!'], 200);
+        } catch (JWTException $e) {
+            return response()->json(['error' => 'Không thể đăng xuất'], 500);
+        }
     }
 }
