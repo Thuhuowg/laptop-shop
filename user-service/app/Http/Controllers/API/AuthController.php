@@ -11,6 +11,7 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 
+
 class AuthController extends Controller
 {
     // Đăng nhập
@@ -136,10 +137,11 @@ class AuthController extends Controller
                 'address' => $request->address,
                 'role_id' => 1, // Gán role mặc định
             ]);
-
+            $token = JWTAuth::fromUser($user);
             return response()->json([
                 'message' => 'Đăng ký thành công!',
                 'user' => $user,
+                'token' => $token,
             ], 201);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Không thể tạo tài khoản: ' . $e->getMessage()], 500);
