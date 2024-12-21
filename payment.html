@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang chủ</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/font-awesome.min.css" rel="stylesheet">
+    <link href="css/prettyPhoto.css" rel="stylesheet">
+    <link href="css/price-range.css" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/sweetalert.css" rel="stylesheet">
+    <link href="css/main.css" rel="stylesheet">
+    <link href="css/responsive.css" rel="stylesheet">
+</head>
+<body>
+    <div id="header-container">
+        <!-- Header sẽ được chèn vào đây -->
+    </div>
+    <section id="cart_items">
+        <div class="container">
+            <div class="breadcrumbs">
+                <ol class="breadcrumb">
+                    <li><a href="/">Trang chủ</a></li>
+                    <li class="active">Thanh toán</li>
+                </ol>
+            </div><!--/breadcrums-->
+
+            <div class="shopper-informations">
+                <div class="row">
+                    <div class="col-sm-12 clearfix">
+                        <div class="bill-to">
+                            <p>Thông tin đơn hàng</p>
+                            <div style="width: 100%" class="form-one">
+                                <form action="/order-place" method="POST">
+                                    <input type="hidden" name="_token" value="CSRF_TOKEN_PLACEHOLDER">
+
+                                    <input type="text" id="shipping_email" name="shipping_email" placeholder="Email*">
+                                    <input type="text" id="shipping_name" name="shipping_name" placeholder="Họ và tên *">
+                                    <input type="text" id="shipping_address" name="shipping_address" placeholder="Địa chỉ *">
+                                    <input type="text" id="shipping_phone" name="shipping_phone" placeholder="Số điện thoại">
+                                    <textarea name="shipping_notes" placeholder="Ghi chú đơn hàng" rows="16"></textarea>
+                                    
+                                    <div class="review-payment">
+                                        <h2>Xem lại giỏ hàng</h2>
+                                    </div>
+
+                                    <div class="table-responsive cart_info">
+                                        <table class="table table-condensed">
+                                            <thead>
+                                                <tr class="cart_menu">
+                                                    <td class="image">Hình ảnh</td>
+                                                    <td class="description">Tên sản phẩm</td>
+                                                    <td class="price">Giá</td>
+                                                    <td class="quantity">Số lượng</td>
+                                                    <td class="total">Thành tiền</td>
+                                                    <td></td>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <!-- Giả sử giỏ hàng có sản phẩm -->
+                                                <tr>
+                                                    <td class="cart_product">
+                                                        <img src="uploads/product/product_image.jpg" width="90" alt="Product Name">
+                                                    </td>
+                                                    <td class="cart_description">
+                                                        <h4><a href="">Product Name</a></h4>
+                                                        <p>Product Description</p>
+                                                    </td>
+                                                    <td class="cart_price">
+                                                        <p>1,000,000 VNĐ</p>
+                                                    </td>
+                                                    <td class="cart_quantity">
+                                                        <div class="cart_quantity_button">
+                                                            <input class="cart_quantity_" type="number" min="1" name="cart_qty[12345]" value="1">
+                                                        </div>
+                                                    </td>
+                                                    <td class="cart_total">
+                                                        <p class="cart_total_price">1,000,000 VNĐ</p>
+                                                    </td>
+                                                    <td class="cart_delete">
+                                                        <a class="cart_quantity_delete" href="/del-product/12345"><i class="fa fa-times"></i></a>
+                                                    </td>
+                                                </tr>
+                                                <!-- Kết thúc sản phẩm giả định -->
+
+                                                <tr>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td>
+                                                        <span style="font-size:18px;">
+                                                            Tổng tiền: 
+                                                            <span id="order_total">1,000,000 VNĐ</span>
+                                                        </span>
+                                                    </td>
+                                                    <td></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <div class="review-payment">
+                                        <h2>Hình thức thanh toán</h2>
+                                    </div>
+
+                                    <div class="payment-options" style="margin-bottom:0">
+                                        <span>
+                                            <label><input name="paymen_option" value="Thanh toán khi nhận hàng" type="checkbox"> Thanh toán khi nhận hàng</label>
+                                        </span>
+                                        <span>
+                                            <label><input name="paymen_option" value="ví điện tử" type="checkbox"> Ví điện tử</label>
+                                        </span>
+                                        <span>
+                                            <label><input name="paymen_option" value="tài khoản ngân hàng" type="checkbox"> Tài khoản ngân hàng</label>
+                                        </span>
+                                    </div>
+
+                                    <input style="font-size:14px" type="submit" value="Đặt hàng" name="send_order_place" class="btn btn-primary btn-sm order-place">
+                                </form>
+                            </div>
+                        </div>
+                    </div>					
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="footer-container"></div>
+
+    <script>
+        // Chèn Header
+        fetch('header.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('header-container').innerHTML = data;
+            });
+
+        // Chèn Footer
+        fetch('footer.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('footer-container').innerHTML = data;
+            });
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang chủ</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/font-awesome.min.css" rel="stylesheet">
+    <link href="css/prettyPhoto.css" rel="stylesheet">
+    <link href="css/price-range.css" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/sweetalert.css" rel="stylesheet">
+    <link href="css/main.css" rel="stylesheet">
+    <link href="css/responsive.css" rel="stylesheet">
+</head>
+<body>
+    <div id="header-container">
+        <!-- Header sẽ được chèn vào đây -->
+    </div>
+    <section id="cart_items">
+        <div class="container">
+            <div class="breadcrumbs">
+                <ol class="breadcrumb">
+                    <li><a href="/">Trang chủ</a></li>
+                    <li class="active">Giỏ hàng của bạn</li>
+                </ol>
+            </div>
+    
+            <!-- Alert Messages (Success/Failure) -->
+            <div class="alert alert-success" style="display:none;">
+                Giỏ hàng đã được cập nhật thành công!
+            </div>
+            <div class="alert alert-danger" style="display:none;">
+                Đã có lỗi xảy ra khi cập nhật giỏ hàng.
+            </div>
+    
+            <!-- Cart Table -->
+            <div class="table-responsive cart_info">
+                <form action="/update-cart" method="POST">
+                    <input type="hidden" name="_token" value="CSRF_TOKEN_PLACEHOLDER">
+    
+                    <table class="table table-condensed">
+                        <thead>
+                            <tr class="cart_menu">
+                                <td class="image">Hình ảnh</td>
+                                <td class="description">Tên sản phẩm</td>
+                                <td class="price">Giá</td>
+                                <td class="quantity">Số lượng</td>
+                                <td class="total">Thành tiền</td>
+                                <td></td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- If cart is not empty -->
+                            <tr>
+                                <td class="cart_product">
+                                    <a href=""><img src="uploads/product/product_image.jpg" width="90" alt="Product Name"></a>
+                                </td>
+                                <td class="cart_description">
+                                    <h4><a href="">Product Name</a></h4>
+                                    <p>Product Description</p>
+                                </td>
+                                <td class="cart_price">
+                                    <p>1,000,000 VNĐ</p>
+                                </td>
+                                <td class="cart_quantity">
+                                    <div class="cart_quantity_button">
+                                        <input class="cart_quantity_" type="number" min="1" name="cart_qty[12345]" value="1">
+                                    </div>
+                                </td>
+                                <td class="cart_total">
+                                    <p class="cart_total_price">1,000,000 VNĐ</p>
+                                </td>
+                                <td class="cart_delete">
+                                    <a class="cart_quantity_delete" href="/del-product/12345"><i class="fa fa-times"></i></a>
+                                </td>
+                            </tr>
+    
+                            <!-- Another Product Example -->
+                            <tr>
+                                <td class="cart_product">
+                                    <a href=""><img src="uploads/product/product_image_2.jpg" width="90" alt="Product Name 2"></a>
+                                </td>
+                                <td class="cart_description">
+                                    <h4><a href="">Product Name 2</a></h4>
+                                    <p>Product Description 2</p>
+                                </td>
+                                <td class="cart_price">
+                                    <p>2,000,000 VNĐ</p>
+                                </td>
+                                <td class="cart_quantity">
+                                    <div class="cart_quantity_button">
+                                        <input class="cart_quantity_" type="number" min="1" name="cart_qty[12346]" value="1">
+                                    </div>
+                                </td>
+                                <td class="cart_total">
+                                    <p class="cart_total_price">2,000,000 VNĐ</p>
+                                </td>
+                                <td class="cart_delete">
+                                    <a class="cart_quantity_delete" href="/del-product/12346"><i class="fa fa-times"></i></a>
+                                </td>
+                            </tr>
+    
+                            <!-- If cart is empty -->
+                            <!-- <tr> -->
+                            <!--     <td colspan="5"><center>Chưa có sản phẩm nào trong giỏ hàng</center></td> -->
+                            <!-- </tr> -->
+    
+                            <!-- Cart Update and Delete Buttons -->
+                            <tr>
+                                <td><input style="font-size:14px" type="submit" name="update_qty" value="Cập nhật" class="update btn-default btn-sm"></td>
+                                <td><a class="btn btn-default update" href="/del-all-product">Xóa tất cả</a></td>
+                                <td>
+                                    <!-- If logged in -->
+                                    <a class="btn btn-default update" href="/checkout">Thanh toán</a>
+    
+                                    <!-- If not logged in -->
+                                    <!-- <a class="btn btn-default update" href="/login-checkout">Thanh toán</a> -->
+                                </td>
+                                <td></td>
+                                <td>
+                                    <span>Tổng tiền: <span>3,000,000 VNĐ</span></span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <div id="footer-container"></div>
+
+    <script>
+        // Chèn Header
+        fetch('header.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('header-container').innerHTML = data;
+            });
+
+        // Chèn Footer
+        fetch('footer.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('footer-container').innerHTML = data;
+            });
+
+        // Khi trang load, lấy query param 'order_id' từ URL và kiểm tra trong localStorage
+       </script>
+</body>
+</html>
