@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết sản phẩm | Laptop-Shoppe</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/font-awesome.min.css" rel="stylesheet">
+    <link href="css/prettyPhoto.css" rel="stylesheet">
+    <link href="css/price-range.css" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/sweetalert.css" rel="stylesheet">
+    <link href="css/main.css" rel="stylesheet">
+    <link href="css/responsive.css" rel="stylesheet">
+</head>
+<body>
+    <div id="header-container">
+        <!-- Header sẽ được chèn vào đây -->
+    </div>
+
+<section>
+        <div class="container">
+            <div class="row">
+                <!-- Sidebar -->
+                <div class="col-sm-3">
+                    <div class="left-sidebar">
+                        <h2>Danh mục sản phẩm</h2>
+                        <div class="panel-group category-products" id="accordian">
+                            <!-- Static example of categories -->
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title"><a href="#">Laptops</a></h4>
+                                </div>
+                            </div>
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title"><a href="#">Phones</a></h4>
+                                </div>
+                            </div>
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title"><a href="#">Accessories</a></h4>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="brands_products">
+                            <h2>Thương hiệu sản phẩm</h2>
+                            <div class="brands-name">
+                                <ul class="nav nav-pills nav-stacked">
+                                    <!-- Static example of brands -->
+                                    <li><a href="#">Apple</a></li>
+                                    <li><a href="#">Samsung</a></li>
+                                    <li><a href="#">Dell</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Details -->
+                <div class="col-sm-9 padding-right">
+                    <!-- Example of a product (replace this with dynamic content) -->
+                    <div class="product-details">
+                        <div class="col-sm-5">
+                            <div class="view-product">
+                                <img src="/upload/product/product_image.jpg" alt="" />
+                            </div>
+                            <div id="similar-product" class="carousel slide" data-ride="carousel">
+                                <div class="carousel-inner">
+                                    <div class="item active">
+                                        <a href=""><img src="/web/images/product-details/similar1.jpg" alt=""></a>
+                                        <a href=""><img src="/web/images/product-details/similar2.jpg" alt=""></a>
+                                        <a href=""><img src="/web/images/product-details/similar3.jpg" alt=""></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-7">
+                            <div class="product-information">
+                                <img src="/web/images/product-details/new.jpg" class="newarrival" alt="" />
+                                <h2>Laptop Apple</h2>
+                                <p>Mã sản phẩm: 12345</p>
+                                <img src="/web/images/product-details/rating.png" alt="" />
+                                <form>
+                                    <input type="hidden" value="12345" class="cart_product_id_12345">
+                                    <input type="hidden" value="Laptop Apple" class="cart_product_name_12345">
+                                    <input type="hidden" value="product_image.jpg" class="cart_product_image_12345">
+                                    <input type="hidden" value="15000000" class="cart_product_price_12345">
+                                    <span>
+                                        <span>15.000.000 VNĐ</span>
+                                        <label>Quantity:</label>
+                                        <input class="cart_product_qty_12345" name="qty" type="number" min="1" value="1" />
+                                        <input name="productid_hidden" type="hidden" min="1" value="12345" />
+                                        <button type="button"  data-id_product="12345" name="add-to-cart" class="btn btn-fefault cart add-to-cart">
+                                            <i class="fa fa-shopping-cart"></i> Thêm giỏ hàng
+                                        </button>
+                                    </span>
+                                </form>
+                                <p><b>Tình trạng:</b> Mới 100%</p>
+                                <p><b>Danh mục:</b> Laptops</p>
+                                <p><b>Thương hiệu:</b> Apple</p>
+                                <a href=""><img src="/web/images/product-details/share.png" class="share img-responsive" alt="" /></a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product Tabs -->
+                    <div class="category-tab shop-details-tab">
+                        <div class="col-sm-12">
+                            <ul class="nav nav-tabs">
+                                <li class="active"><a href="#details" data-toggle="tab">Mô tả</a></li>
+                                <li><a href="#companyprofile" data-toggle="tab">Chi tiết sản phẩm</a></li>
+                            </ul>
+                        </div>
+                        <div class="tab-content">
+                            <div class="tab-pane fade active in" id="details">
+                                <p>Mô tả sản phẩm chi tiết...</p>
+                            </div>
+                            <div class="tab-pane fade" id="companyprofile">
+                                <p>Chi tiết sản phẩm chi tiết...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recommended Items -->
+                    <div class="recommended_items">
+                        <h2 class="title text-center">Sản phẩm liên quan</h2>
+                        <div id="recommended-item-carousel" class="carousel slide" data-ride="carousel">
+                            <div class="carousel-inner">
+                                <div class="item active">
+                                    <!-- Static example of related products -->
+                                    <a href="chi-tiet-san-pham-1.html">
+                                        <div class="col-sm-4">
+                                            <div class="product-image-wrapper">
+                                                <div class="single-products">
+                                                    <div class="productinfo text-center">
+                                                        <img src="/upload/product/related1.jpg" alt="" />
+                                                        <h2>8.000.000 VNĐ</h2>
+                                                        <p>Smartphone Samsung</p>
+                                                        <button type="button" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i> Thêm giỏ hàng</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <a href="chi-tiet-san-pham-2.html">
+                                        <div class="col-sm-4">
+                                            <div class="product-image-wrapper">
+                                                <div class="single-products">
+                                                    <div class="productinfo text-center">
+                                                        <img src="/upload/product/related2.jpg" alt="" />
+                                                        <h2>10.000.000 VNĐ</h2>
+                                                        <p>Laptop Dell</p>
+                                                        <button type="button" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i> Thêm giỏ hàng</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <a href="chi-tiet-san-pham-3.html">
+                                        <div class="col-sm-4">
+                                            <div class="product-image-wrapper">
+                                                <div class="single-products">
+                                                    <div class="productinfo text-center">
+                                                        <img src="/upload/product/related3.jpg" alt="" />
+                                                        <h2>12.000.000 VNĐ</h2>
+                                                        <p>Tablet Lenovo</p>
+                                                        <button type="button" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i> Thêm giỏ hàng</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="footer-container"></div>
+
+    <script>
+        // Chèn Header
+        fetch('header.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('header-container').innerHTML = data;
+            });
+
+        // Chèn Footer
+        fetch('footer.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('footer-container').innerHTML = data;
+            });
+
+        // Khi trang load, lấy query param 'order_id' từ URL và kiểm tra trong localStorage
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderId = urlParams.get('order_id');
+            if (orderId) {
+                fetchOrderDetails(orderId);
+            } else {
+                alert('Không tìm thấy ID đơn hàng!');
+            }
+        });
+
+        // Hàm để gọi API lấy chi tiết đơn hàng
+        function fetchOrderDetails(orderId) {
+            // Kiểm tra xem dữ liệu đã được lưu trong localStorage chưa
+            const storedOrder = localStorage.getItem(`order_${orderId}`);
+            if (storedOrder) {
+                console.log('Dữ liệu lấy từ localStorage');
+                renderOrderDetails(JSON.parse(storedOrder));  // Render từ localStorage
+            } else {
+                // Nếu chưa có dữ liệu trong localStorage, gọi API
+                console.log('Dữ liệu lấy từ API');
+                fetch(`http://127.0.0.1:8000/api/orders/${orderId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Lưu dữ liệu vào localStorage
+                        localStorage.setItem(`order_${orderId}`, JSON.stringify(data));
+                        renderOrderDetails(data);
+                    })
+                    .catch(error => {
+                        console.error('Có lỗi khi gọi API:', error);
+                    });
+            }
+        }
+
+        // Hàm để render chi tiết đơn hàng vào trang
+        function renderOrderDetails(order) {
+            const orderDetailsDiv = document.getElementById('order-details');
+            orderDetailsDiv.innerHTML = `
+                <p><strong>Order ID:</strong> ${order.order_id}</p>
+                <p><strong>User ID:</strong> ${order.user_id}</p>
+                <p><strong>Order Date:</strong> ${order.order_date}</p>
+                <p><strong>Status:</strong> ${order.status}</p>
+                <p><strong>Total Amount:</strong> ${order.total_amount}</p>
+                <p><strong>User Name:</strong> ${order.user_name}</p>
+            `;
+
+            // Render các sản phẩm (order items)
+            const orderItemsList = document.getElementById('order-items');
+            orderItemsList.innerHTML = '';  // Clear existing data
+
+            order.order_items.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.product_name}</td>
+                    <td>${item.quantity}</td>
+                    <td>${item.price}</td>
+                    <td>${item.quantity * item.price}</td>
+                `;
+                orderItemsList.appendChild(row);
+            });
+        }
+    </script>
+</body>
+</html>
