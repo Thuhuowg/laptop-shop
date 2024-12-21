@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use App\Models\User;
 
 class AuthController extends Controller
 {
@@ -21,7 +22,7 @@ class AuthController extends Controller
         ]);
 
         // Lấy thông tin người dùng từ cơ sở dữ liệu
-        $user = DB::table('user_pj')->where('email', $request->email)->first();
+        $user = User::where('email', $request->email)->first();
 
         // Kiểm tra thông tin người dùng và mật khẩu
         if (!$user || $user->password !== $request->password) {
