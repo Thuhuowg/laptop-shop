@@ -91,8 +91,11 @@
 
                     <div class="text-center text-lg-start">
                         <button type="button" id="login-button" class="btn btn-primary btn-lg px-5 py-2">Đăng nhập</button>
-                        <p class="small fw-bold mt-2 pt-1 mb-0">Chưa có tài khoản? <a href="/register" class="link-danger">Đăng ký</a></p>
+                        <p class="small fw-bold mt-2 pt-1 mb-0">Chưa có tài khoản? <a href="/fe/register.html" class="link-danger">Đăng ký</a></p>
                     </div>
+
+                    <!-- Phần tử hiển thị lỗi -->
+                    <div id="errorMessage" style="color: red;"></div>
                 </form>
             </div>
         </div>
@@ -120,61 +123,63 @@
 <script>
     document.getElementById('login-button').addEventListener('click', async function (event) {
         event.preventDefault();
-    
+
         const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value.trim();
         const errorMessage = document.getElementById('errorMessage');
-    
+
         errorMessage.textContent = '';
-    
+
         if (!email || !password) {
             errorMessage.textContent = 'Vui lòng nhập đầy đủ email và mật khẩu.';
             return;
         }
-    
+
         const payload = {
             email,
             password,
         };
-    
+        console.log('Payload:', payload);
         try {
-            const response = await fetch('http://127.0.0.1:8000/api/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload),
-            });
-    
-            // Kiểm tra trạng thái HTTP
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => null);
-                errorMessage.textContent = errorData?.message || 'Đăng nhập thất bại!';
+    const response = await fetch('http://127.0.0.1:8001/api/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+    });
+
+    // Kiểm tra trạng thái HTTP và log response
+    if (!response.ok) {
+                const errorData = await response.json();
+                errorMessage.textContent = errorData.message || 'Đã xảy ra lỗi khi đăng nhập.';
                 return;
             }
     
-            const data = await response.json();
-    
-            if (data.token && data.id && data.role) {
-                // Lưu token vào cookie
-                document.cookie = `token=${data.token}; path=/; SameSite=Lax; Secure; max-age=86400`;
-    
-                // Lưu thông tin người dùng vào localStorage
-                localStorage.setItem('user_id', data.id);
-                localStorage.setItem('role_id', data.role);
-    
-                // Chuyển hướng dựa trên vai trò
-                const redirectUrl = data.role === 2 ? '../product/product.html' : '../home/home.html';
-                window.location.href = redirectUrl;
-            } else {
-                errorMessage.textContent = 'Phản hồi từ server không hợp lệ!';
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            errorMessage.textContent = 'Đã xảy ra lỗi khi đăng nhập. Vui lòng kiểm tra kết nối và thử lại.';
-        }
+    // Đọc dữ liệu trả về từ API
+    const data = await response.json();
+    console.log('Response data:', data);
+
+    if (data.token && data.id && data.role) {
+        // Lưu token vào cookie
+        document.cookie = `token=${data.token}; path=/; SameSite=Lax; Secure; max-age=86400`;
+
+        // Lưu thông tin người dùng vào localStorage
+        localStorage.setItem('user_id', data.id);
+        localStorage.setItem('role_id', data.role);
+
+        // Chuyển hướng dựa trên vai trò
+        const redirectUrl = data.role === 2 ? 'http://127.0.0.1:5501/fe/product/product.html' : 'http://127.0.0.1:5501/fe/home/home.html';
+        window.location.href = redirectUrl;
+    } else {
+        errorMessage.textContent = 'Phản hồi từ server không hợp lệ!';
+    }
+} catch (error) {
+    console.error('Error:', error);
+    errorMessage.textContent = 'Đã xảy ra lỗi khi đăng nhập. Vui lòng kiểm tra kết nối và thử lại.';
+}
+
     });
-    </script>
-    
+</script>
 </body>
 </html>

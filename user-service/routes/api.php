@@ -18,20 +18,12 @@ use App\Http\Controllers\UserController;
 |
 */
 
-Route::group(['prefix' => 'auth'], function () {
-    // Đăng ký tài khoản
-    Route::post('/register', [AuthController::class, 'register']);
-
-    // Đăng nhập
-    Route::post('/login', [AuthController::class, 'login']);
-
-    // Lấy thông tin người dùng hiện tại (yêu cầu token JWT)
-    Route::middleware('auth:api')->get('/user', [AuthController::class, 'getUser']);
-
-    // Đăng xuất (yêu cầu token JWT)
-    Route::middleware('auth:api')->post('/logout', [AuthController::class, 'logout']);
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
 });
-
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::prefix('users')->group(function () {
     Route::get('/', [UserController::class, 'index'])->name('users.index');
     Route::get('/create', [UserController::class, 'create'])->name('users.create');

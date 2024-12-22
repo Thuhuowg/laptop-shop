@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,7 +21,7 @@
             <div class="row">
                 <div class="col-sm-12">
                     <div class="product-details">
-                        <!-- Product details will be dynamically added here -->
+                        <!-- Thông tin sản phẩm sẽ được thêm vào đây -->
                     </div>
                 </div>
             </div>
@@ -31,42 +31,72 @@
     <div id="footer-container"></div>
 
     <script>
-        // Load Header and Footer
-        fetch('header.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('header-container').innerHTML = data;
-            });
+        // Hàm tải Header và Footer
+        const loadHeaderAndFooter = async () => {
+            try {
+                const [headerResponse, footerResponse] = await Promise.all([
+                    fetch('header.html'),
+                    fetch('footer.html')
+                ]);
+                const headerData = await headerResponse.text();
+                const footerData = await footerResponse.text();
 
-        fetch('footer.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('footer-container').innerHTML = data;
-            });
+                document.getElementById('header-container').innerHTML = headerData;
+                document.getElementById('footer-container').innerHTML = footerData;
+            } catch (error) {
+                console.error('Lỗi khi tải header hoặc footer:', error);
+            }
+        };
 
-        // Extract product_id from the URL
-        // Extract product_id from the URL
+        // Lấy product_id từ URL
         const urlParams = new URLSearchParams(window.location.search);
-const productId = urlParams.get('product_id');
+        const productId = urlParams.get('product_id'); // Lấy ID sản phẩm từ URL
 
-if (productId) {
-    fetch(`http://127.0.0.1:8000/api/v1/products/${productId}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Product not found');
-            }
-            return response.json();
-        })
-        .then(product => {
-            if (!product) {
-                throw new Error('Product data is missing');
+        // Kiểm tra dữ liệu trong localStorage trước khi gọi API
+        const getProductDetailsFromLocalStorage = (productId) => {
+            const storedProduct = localStorage.getItem(`product_${productId}`);
+            return storedProduct ? JSON.parse(storedProduct) : null;
+        };
+
+        // Hàm tải chi tiết sản phẩm
+        const loadProductDetails = async () => {
+            if (!productId) {
+                alert('Không tìm thấy ID sản phẩm!');
+                return;
             }
 
+            // Kiểm tra xem sản phẩm đã có trong localStorage chưa
+            const cachedProduct = getProductDetailsFromLocalStorage(productId);
+            if (cachedProduct) {
+                displayProductDetails(cachedProduct);
+            } else {
+                try {
+                    const response = await fetch(`http://127.0.0.1:8000/api/v1/products/${productId}`);
+                    if (!response.ok) {
+                        throw new Error('Sản phẩm không tìm thấy');
+                    }
+                    const product = await response.json();
+                    
+                    if (!product) {
+                        throw new Error('Dữ liệu sản phẩm bị thiếu');
+                    }
+
+                    // Lưu sản phẩm vào localStorage
+                    localStorage.setItem(`product_${productId}`, JSON.stringify(product));
+                    displayProductDetails(product);
+                } catch (error) {
+                    console.error('Lỗi khi tải thông tin sản phẩm:', error);
+                    alert('Không tìm thấy sản phẩm hoặc có lỗi trong việc tải thông tin');
+                }
+            }
+        };
+
+        // Hàm hiển thị thông tin sản phẩm
+        const displayProductDetails = (product) => {
             const productDetails = document.querySelector('.product-details');
             if (product.category && product.discount) {
                 productDetails.innerHTML = `
                     <div class="col-sm-5">
-                        
                         <div class="view-product">
                             <img src="/fe/images/product/${product.image_url}" alt="${product.product_name}" />
                         </div>
@@ -79,29 +109,26 @@ if (productId) {
                             <p>Mô tả sản phẩm: ${product.description}</p>
                             <span>
                                 <span>${new Intl.NumberFormat('vi-VN').format(product.price)} VNĐ</span>
-                                <label>Quantity:</label>
+                                <label>Số lượng:</label>
                                 <input class="cart_product_qty_${product.product_id}" name="qty" type="number" min="1" value="1" />
                                 <button type="button" class="btn btn-fefault cart add-to-cart">
-                                    <i class="fa fa-shopping-cart"></i> Thêm giỏ hàng
+                                    <i class="fa fa-shopping-cart"></i> Thêm vào giỏ hàng
                                 </button>
                             </span>
                             <p><b>Tình trạng:</b> ${product.is_deleted === 0 ? 'Còn hàng' : 'Hết hàng'}</p>
                             <p><b>Danh mục:</b> ${product.category ? product.category.category_name : 'Không có'}</p>
-                            <p><b>Giảm giá:</b> ${product.discount ? product.discount.discount_percent + '% off' : 'Không có'}</p>
+                            <p><b>Giảm giá:</b> ${product.discount ? product.discount.discount_percent + '% giảm' : 'Không có'}</p>
                         </div>
                     </div>
                 `;
             } else {
-                console.error('Category or Discount data is missing');
+                console.error('Dữ liệu Danh mục hoặc Giảm giá bị thiếu');
             }
-        })
-        .catch(error => {
-            console.log('Error loading product details:', error);
-            alert('Không tìm thấy sản phẩm hoặc có lỗi trong việc tải thông tin');
-        });
-} else {
-    alert('Không tìm thấy sản phẩm!');
-}
+        };
+
+        // Gọi các hàm để tải header, footer và chi tiết sản phẩm
+        loadHeaderAndFooter();
+        loadProductDetails();
     </script>
 </body>
 </html>

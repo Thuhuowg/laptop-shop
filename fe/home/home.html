@@ -107,14 +107,14 @@
 
     <script>
         // Chèn Header
-        fetch('header.html')
+        fetch('/fe/header.html')
             .then(response => response.text())
             .then(data => {
                 document.getElementById('header-container').innerHTML = data;
             });
 
         // Chèn Footer
-        fetch('footer.html')
+        fetch('/fe/footer.html')
             .then(response => response.text())
             .then(data => {
                 document.getElementById('footer-container').innerHTML = data;
@@ -207,7 +207,7 @@
                                 <input type="hidden" value="${product.price}" class="cart_product_price_${product.product_id}">
                                 <input type="hidden" value="1" class="cart_product_qty_${product.product_id}">
 
-                                <a href="product-detail.html?product_id=${product.product_id}">
+                                <a href="/fe/product-detail.html?product_id=${product.product_id}">
                                     <img src="/fe/images/product/${product.image_url}" alt="${product.product_name}" />
                                     <h2>${new Intl.NumberFormat('vi-VN').format(product.price)} VNĐ</h2>
                                     <p>${product.product_name}</p>

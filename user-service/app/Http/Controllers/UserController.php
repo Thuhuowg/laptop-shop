@@ -21,35 +21,33 @@ class UserController extends Controller
         return view('users.create');
     }
 
-    // Lưu người dùng mới
-    // public function store(Request $request)
-    // {
-    //     // Xác thực dữ liệu
-    //     $request->validate([
-    //         'username' => 'required|unique:user_pj|max:255',
-    //         'password' => 'required|min:6',
-    //         'email' => 'required|email|unique:user_pj,email',
-    //         'phone_number' => 'nullable|digits_between:10,15',
-    //         'address' => 'nullable|max:255',
-    //     ]);
-    //     try {
-    //         // Lưu vào cơ sở dữ liệu
-    //         User::create([
-    //             'username' => $request->username,
-    //             'password' => $request->password, // Không mã hóa
-    //             'email' => $request->email,
-    //             'phone_number' => $request->phone_number,
-    //             'address' => $request->address,
-    //             'role_id' => $request->role_id,
-    //         ]);
+    public function store(Request $request)
+    {
+        // Xác thực dữ liệu
+        $request->validate([
+            'username' => 'required|unique:user_pj|max:255',
+            'password' => 'required|min:6',
+            'email' => 'required|email|unique:user_pj,email',
+            'phone_number' => 'nullable|digits_between:10,15',
+            'address' => 'nullable|max:255',
+        ]);
+        try {
+            // Lưu vào cơ sở dữ liệu
+            User::create([
+                'username' => $request->username,
+                'password' => $request->password, // Không mã hóa
+                'email' => $request->email,
+                'phone_number' => $request->phone_number,
+                'address' => $request->address,
+                'role_id' => $request->role_id,
+            ]);
 
-    //         return redirect()->route('users.index')->with('success', 'Người dùng đã được tạo thành công!');
-    //     } catch (\Exception $e) {
-    //         return redirect()->back()->with('error', $e->getMessage());
-    //     }
-    // }
+            return redirect()->route('users.index')->with('success', 'Người dùng đã được tạo thành công!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
 
-    // Hiển thị form chỉnh sửa
     public function edit($id)
     {
         $user = User::findOrFail($id); // Tìm người dùng

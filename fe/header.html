@@ -1,3 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home | Laptop-Shoppe</title>
+    <link href="/fe/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/fe/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/fe/css/prettyPhoto.css" rel="stylesheet">
+    <link href="/fe/css/price-range.css" rel="stylesheet">
+    <link href="/fe/css/animate.css" rel="stylesheet">
+    <link href="/fe/css/sweetalert.css" rel="stylesheet">
+    <link href="/fe/css/main.css" rel="stylesheet">
+    <link href="/fe/css/responsive.css" rel="stylesheet">
+</head>
+<body>
 <header id="header">
     <div class="header-middle">
         <div class="container">
@@ -27,11 +43,7 @@
                                 </a>
                             </li>
                             <li>
-                                <!-- Thêm dropdown cho đăng nhập và đăng ký -->
-                                <ul id="" class="">
-                                    <li><a href="/fe/login.html">Đăng nhập</a></li>
-                                    <li><a href="/fe/register.html">Đăng ký</a></li>
-                                </ul>
+                                <a href="#" id="auth-link">Đăng nhập</a>
                             </li>
                         </ul>
                     </div>
@@ -41,20 +53,54 @@
     </div>
 </header>
 
-<!-- Thêm JavaScript để hiển thị dropdown khi nhấn vào tài khoản -->
+<!-- Bổ sung đoạn script phía dưới -->
 <script>
-    // Lắng nghe sự kiện click trên biểu tượng tài khoản
-    document.getElementById('user-icon').addEventListener('click', function() {
-        var dropdown = document.getElementById('account-dropdown');
-        dropdown.style.display = (dropdown.style.display === 'block') ? 'none' : 'block';
-    });
-
-    // Đóng dropdown nếu người dùng click ra ngoài
-    document.addEventListener('click', function(event) {
-        var dropdown = document.getElementById('account-dropdown');
-        var userIcon = document.getElementById('user-icon');
-        if (!userIcon.contains(event.target) && !dropdown.contains(event.target)) {
-            dropdown.style.display = 'none';
+    function initializeHeader() {
+        // Function to delete a cookie by name
+        function deleteCookie(name) {
+            document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
         }
-    });
+
+        // Function to check if a token exists
+        function getToken() {
+            const cookieString = document.cookie.split('; ').find(row => row.startsWith('token='));
+            return cookieString ? cookieString.split('=')[1] : null;
+        }
+
+        // Function to handle logout
+        function handleLogout() {
+            deleteCookie('token');
+            updateAuthLink();
+        }
+
+        // Function to update the auth link based on token presence
+        function updateAuthLink() {
+            const authLink = document.getElementById('auth-link');
+            if (!authLink) {
+                console.error("Element with ID 'auth-link' not found in DOM.");
+                return;
+            }
+
+            const token = getToken();
+            if (token) {
+                authLink.textContent = 'Đăng xuất';
+                authLink.href = '#'; // No page navigation for logout
+                authLink.addEventListener('click', function () {
+                    handleLogout();
+                });
+            } else {
+                authLink.textContent = 'Đăng nhập';
+                authLink.href = '/fe/login/login.html';
+                authLink.removeEventListener('click', handleLogout);
+            }
+        }
+
+        // Call the function to update the link
+        updateAuthLink();
+    }
+
+    // Ensure the function runs after header.html is loaded into the DOM
+    document.addEventListener('DOMContentLoaded', initializeHeader);
 </script>
+</body>
+</html>

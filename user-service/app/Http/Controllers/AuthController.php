@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Hash; // Dùng để mã hóa mật khẩu
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
-use App\Models\User;
 
 class AuthController extends Controller
 {
@@ -16,8 +17,8 @@ class AuthController extends Controller
     {
         // Xác thực dữ liệu đầu vào
         $validator = Validator::make($request->all(), [
-            'username' => 'required|unique:users,username',
-            'email' => 'required|email|unique:users,email',
+            'username' => 'required|unique:user_pj,username',
+            'email' => 'required|email|unique:user_pj,email',
             'password' => 'required|min:6|confirmed',
             'phone_number' => 'required',
             'address' => 'required',
@@ -46,31 +47,29 @@ class AuthController extends Controller
 
     // Đăng nhập
     public function login(Request $request)
-    {
-        // Xác thực dữ liệu đầu vào
-        $credentials = $request->only('email', 'password');
+{
+    $credentials = $request->only('email', 'password');
 
-        try {
-            // Kiểm tra thông tin đăng nhập và lấy token
-            if (!$token = JWTAuth::attempt($credentials)) {
-                return response()->json(['error' => 'Email hoặc mật khẩu không chính xác'], 401);
-            }
-
-            return response()->json([
-                'message' => 'Đăng nhập thành công!',
-                'token' => $token,
-                'user' => JWTAuth::user(), // Lấy thông tin người dùng sau khi đăng nhập
-            ], 200);
-        } catch (JWTException $e) {
-            return response()->json(['error' => 'Không thể tạo token'], 500);
+    try {
+        if (!$token = JWTAuth::attempt($credentials)) {
+            return response()->json(['error' => 'Email hoặc mật khẩu không chính xác'], 401);
         }
+    } catch (JWTException $e) {
+        return response()->json(['error' => 'Không thể tạo token'], 500);
     }
+
+    return response()->json([
+        'message' => 'Đăng nhập thành công!',
+        'token' => $token,
+        'user' => Auth::user(),
+    ], 200);
+}
 
     // Lấy thông tin người dùng hiện tại
     public function getUser()
     {
         try {
-            $user = JWTAuth::parseToken()->authenticate(); // Xác thực token và lấy thông tin người dùng
+            $user = JWTAuth::parseToken()->authenticate();
             return response()->json($user, 200);
         } catch (JWTException $e) {
             return response()->json(['error' => 'Token không hợp lệ hoặc đã hết hạn'], 401);
@@ -81,7 +80,7 @@ class AuthController extends Controller
     public function logout()
     {
         try {
-            JWTAuth::invalidate(JWTAuth::getToken()); // Hủy token
+            JWTAuth::invalidate(JWTAuth::getToken());
             return response()->json(['message' => 'Đăng xuất thành công!'], 200);
         } catch (JWTException $e) {
             return response()->json(['error' => 'Không thể đăng xuất'], 500);
