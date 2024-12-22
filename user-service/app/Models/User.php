@@ -10,6 +10,8 @@ class User extends Authenticatable implements JWTSubject
     protected $table = 'user_pj'; // Tên bảng
     protected $primaryKey = 'user_id';
 
+    public $timestamps = false; // Vô hiệu hóa timestamps
+
     protected $fillable = [
         'username',
         'email',
