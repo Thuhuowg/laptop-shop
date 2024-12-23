@@ -36,11 +36,16 @@ return [
     */
 
     'guards' => [
-        'web' => [
-            'driver' => 'session',
-            'provider' => 'users',
-        ],
+    'web' => [
+        'driver' => 'session',
+        'provider' => 'users',
     ],
+
+    'api' => [
+        'driver' => 'passport', // Hoặc 'sanctum' nếu bạn sử dụng Sanctum
+        'provider' => 'users',
+    ],
+],
 
     /*
     |--------------------------------------------------------------------------
