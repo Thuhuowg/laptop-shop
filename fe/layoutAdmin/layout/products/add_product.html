@@ -9,7 +9,6 @@
 
                 <div class="position-center">
                     <form enctype="multipart/form-data" id="form-add-product" method="POST">
-                        {{ csrf_field() }}
                         <div class="form-group">
                             <label for="exampleInputEmail1">Tên sản phẩm</label>
                             <input type="text" data-validation="length" data-validation-length="min10" data-validation-error-msg="Làm ơn điền ít nhất 10 ký tự" name="product_name" class="form-control" id="productName" placeholder="Tên danh mục">
@@ -25,9 +24,7 @@
                         <div class="form-group">
                             <label for="exampleInputPassword1">Danh mục sản phẩm</label>
                             <select name="product_cate" id="categoryId" class="form-control input-sm m-bot15">
-                                @foreach($cate_product as $category)
-                                    <option value="{{$category['category_id']}}">{{$category['category_name']}}</option>
-                                @endforeach
+                                
                             </select>
                         </div>
                         <div class="form-group">
@@ -37,9 +34,7 @@
                         <div class="form-group">
                             <label for="exampleInputPassword1">Mã giảm giá</label>
                             <select name="discount_id" id="discountId" class="form-control input-sm m-bot15">
-                                @foreach($discounts as $discount)
-                                    <option value="{{$discount['discount_id']}}">{{$discount['discount_name']}}</option>
-                                @endforeach
+                                
                             </select>
                         </div>
                         <div class="form-group">
@@ -58,6 +53,36 @@
 </div>
 <script>
     $(document).ready(function() {
+        $.ajax({
+            type: "GET",
+            url: "http://localhost:8006/api/add-product",
+            dataType: 'json',
+            success: function (data) {
+                const categories = $('#categoryId');
+                data.cate_product.forEach(function(category) {
+                    const categoryId = category.category_id.toString();
+                    const categoryName = category.category_name;
+                    categories.append($('<option>',{
+                        value: categoryId,
+                        text: categoryName
+                    }))
+                });
+
+                const discounts = $('#discountId');
+                data.discounts.forEach(function(discount) {
+                    const discountId = discount.discount_id.toString();
+                    const discountName = discount.discount_name;
+                    discounts.append($('<option>',{
+                        value: discountId,
+                        text: discountName
+                    }))
+                });
+            },
+            error: function (e) {
+                console.log(xhr.responseText);
+            }
+        });
+
         $('.add_product').on('click', function(event) {
             
             event.preventDefault();
@@ -75,12 +100,13 @@
             $.ajax({
                 type: "POST",
                 enctype: 'multipart/form-data',
-                url: "http://localhost:8006/save-product",
+                url: "http://localhost:8006/api/save-product",
                 data: data,
                 processData: false,
                 contentType: false,
                 success: function (data) {
-                    alert('Thêm sản phẩm thành công!')
+                    alert('Thêm sản phẩm thành công!');
+                    $('#form-add-product')[0].reset();
                 },
                 error: function (e) {
                     console.log(xhr.responseText);

@@ -7,7 +7,7 @@
             </header>
             <div class="panel-body">
                 <div class="position-center">
-                    <form id="category-form" method="post">
+                    <form id="add-category-form">
                         <div class="form-group">
                             <label for="exampleInputEmail1">Tên danh mục</label>
                             <input type="text" name="category_product_name" class="form-control" id="categoryName" placeholder="Tên danh mục" required>
@@ -23,7 +23,7 @@
                                     <option value="1">Hiển thị</option>
                             </select>
                         </div>
-                        <button type="submit" name="add_category_product" class="btn btn-info add_category">Thêm mới</button>
+                        <button name="add_category_product" class="btn btn-info add_category">Thêm mới</button>
                     </form>
                 </div>
             </div>
@@ -33,7 +33,7 @@
 
 <script type="text/javascript">
     $(document).ready(function() {
-        $('.add_category').on('submit', function(event) {
+        $('.add_category').on('click', function(event) {
             event.preventDefault();
             const data = {
                 category_product_name: $('#categoryName').val(),
@@ -44,11 +44,12 @@
             $.ajax({
                 url: "http://localhost:8006/api/save-category",
                 type: 'POST',
+                headers: {  'Access-Control-Allow-Origin': 'http://The web site allowed to access' },
                 contentType: 'application/json',
                 data: JSON.stringify(data),
                 success: function(response) {
                     alert('Thêm danh mục sản phẩm thành công!');
-                    $('#category-form')[0].reset();
+                    $('#add-category-form')[0].reset();
                 },
                 error: function(xhr, status, error) {
                     console.log(xhr.responseText);

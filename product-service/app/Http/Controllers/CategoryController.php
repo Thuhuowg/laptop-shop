@@ -27,18 +27,17 @@ class CategoryController extends Controller
     }
 
     public function save_category_product(Request $request){
+
         $request->validate([
             'category_product_name' => 'required|string|max:255',
             'category_product_desc' => 'nullable|string',
             'category_product_status' => 'required|integer|in:0,1',
         ]);
-
         $category = CategoryModel::create([
             'category_name' => $request->input('category_product_name'),
             'category_desc' => $request->input('category_product_desc'),
             'category_status' => (int)$request->input('category_product_status'), 
         ]);
-        dd($category);
         return response()->json(['data' => $category], 201);
     }
 
