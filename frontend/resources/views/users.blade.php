@@ -8,7 +8,7 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-       body {
+        body {
             overflow-x: hidden;
             /* Prevent horizontal scroll */
         }
@@ -116,6 +116,11 @@
                             <input type="email" class="form-control" id="editEmail" required>
                         </div>
                         <div class="mb-3">
+                            <label for="editPassword" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="editPassword">
+
+                        </div>
+                        <div class="mb-3">
                             <label for="editPhone" class="form-label">Phone</label>
                             <input type="text" class="form-control" id="editPhone">
                         </div>
@@ -212,66 +217,70 @@
             content.classList.toggle('shift');
         });
 
-         // Hàm hiển thị modal và điền thông tin người dùng cần sửa
-    function editUser(id) {
-        // Gửi yêu cầu GET để lấy thông tin chi tiết người dùng từ API
-        fetch(`http://127.0.0.1:8001/api/users/${id}/edit`, {
-            method: 'GET',
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Không thể lấy thông tin người dùng!');
-                }
-                return response.json();
+        // Hàm hiển thị modal và điền thông tin người dùng cần sửa
+        function editUser(id) {
+            // Gửi yêu cầu GET để lấy thông tin chi tiết người dùng từ API
+            fetch(`http://127.0.0.1:8001/api/users/${id}`, {
+                method: 'GET',
             })
-            .then(user => {
-                // Điền thông tin người dùng vào form
-                document.getElementById('editUserId').value = user.user_id;
-                document.getElementById('editUsername').value = user.username;
-                document.getElementById('editEmail').value = user.email;
-                document.getElementById('editPhone').value = user.phone_number || '';
-                document.getElementById('editAddress').value = user.address || '';
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Không thể lấy thông tin người dùng!');
+                    }
+                    return response.json();
+                })
+                .then(user => {
+                    // Điền thông tin người dùng vào form
+                    document.getElementById('editUserId').value = user.user_id;
+                    document.getElementById('editUsername').value = user.username;
+                    document.getElementById('editEmail').value = user.email;
+                    document.getElementById('editPhone').value = user.phone_number || '';
+                    document.getElementById('editAddress').value = user.address || '';
 
-                // Hiển thị modal
-                const editUserModal = new bootstrap.Modal(document.getElementById('editUserModal'));
-                editUserModal.show();
+                    // Hiển thị modal
+                    const editUserModal = new bootstrap.Modal(document.getElementById('editUserModal'));
+                    editUserModal.show();
+                })
+                .catch(error => {
+                    console.error('Lỗi khi lấy thông tin người dùng:', error);
+                    alert('Không thể tải thông tin người dùng. Vui lòng thử lại!');
+                });
+        }
+
+        // Xử lý khi form sửa được submit
+        document.getElementById('editUserForm').addEventListener('submit', function (event) {
+            event.preventDefault(); // Ngăn chặn reload trang
+
+            const userId = document.getElementById('editUserId').value;
+            const updatedData = {
+                username: document.getElementById('editUsername').value,
+                email: document.getElementById('editEmail').value,
+                phone_number: document.getElementById('editPhone').value,
+                address: document.getElementById('editAddress').value,
+            };
+            const password = document.getElementById('editPassword').value;
+            if (password.trim() !== '') {
+                updatedData.password = password; // Chỉ thêm password nếu nó không rỗng
+            }
+
+            // Gửi yêu cầu PUT để cập nhật thông tin người dùng
+            fetch(`http://127.0.0.1:8001/api/users/${userId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedData),
             })
-            .catch(error => {
-                console.error('Lỗi khi lấy thông tin người dùng:', error);
-                alert('Không thể tải thông tin người dùng. Vui lòng thử lại!');
-            });
-    }
-
-    // Xử lý khi form sửa được submit
-    document.getElementById('editUserForm').addEventListener('submit', function (event) {
-        event.preventDefault(); // Ngăn chặn reload trang
-
-        const userId = document.getElementById('editUserId').value;
-        const updatedData = {
-            username: document.getElementById('editUsername').value,
-            email: document.getElementById('editEmail').value,
-            phone_number: document.getElementById('editPhone').value,
-            address: document.getElementById('editAddress').value,
-        };
-
-        // Gửi yêu cầu PUT để cập nhật thông tin người dùng
-        fetch(`http://127.0.0.1:8001/api/users/${userId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(updatedData),
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Cập nhật người dùng không thành công!');
-                }
-                return response.json();
-            })
-            .then(() => {
-                // Cập nhật dữ liệu trên bảng mà không cần tải lại trang
-                const userRow = document.getElementById(`user-${userId}`);
-                userRow.innerHTML = `
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Cập nhật người dùng không thành công!');
+                    }
+                    return response.json();
+                })
+                .then(() => {
+                    // Cập nhật dữ liệu trên bảng mà không cần tải lại trang
+                    const userRow = document.getElementById(`user-${userId}`);
+                    userRow.innerHTML = `
                     <td>${userId}</td>
                     <td>${updatedData.username}</td>
                     <td>${updatedData.email}</td>
@@ -283,16 +292,16 @@
                     </td>
                 `;
 
-                // Đóng modal và hiển thị thông báo
-                const editUserModal = bootstrap.Modal.getInstance(document.getElementById('editUserModal'));
-                editUserModal.hide();
-                alert('Cập nhật người dùng thành công!');
-            })
-            .catch(error => {
-                console.error('Lỗi khi cập nhật người dùng:', error);
-                alert('Không thể cập nhật người dùng. Vui lòng thử lại!');
-            });
-    });
+                    // Đóng modal và hiển thị thông báo
+                    const editUserModal = bootstrap.Modal.getInstance(document.getElementById('editUserModal'));
+                    editUserModal.hide();
+                    alert('Cập nhật người dùng thành công!');
+                })
+                .catch(error => {
+                    console.error('Lỗi khi cập nhật người dùng:', error);
+                    alert('Không thể cập nhật người dùng. Vui lòng thử lại!');
+                });
+        });
     </script>
 </body>
 

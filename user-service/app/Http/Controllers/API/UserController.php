@@ -28,11 +28,46 @@ class UserController extends Controller
         return response()->json($user);
     }
 
-    // Cập nhật thông tin người dùng (API)
-    public function update(Request $request, $user_id)
+    // // Create a new user (API)
+    // public function store(Request $request)
+    // {
+    //     // Validate incoming request data
+    //     $validator = Validator::make($request->all(), [
+    //         'username' => 'required|unique:user_pj|max:255',
+    //         'password' => 'required|min:6',
+    //         'email' => 'required|email|unique:user_pj,email',
+    //         'phone_number' => 'nullable|digits_between:10,15',
+    //         'address' => 'nullable|max:255',
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return response()->json($validator->errors(), 422);
+    //     }
+
+    //     try {
+    //         // Create a new user
+    //         $user = User::create([
+    //             'username' => $request->username,
+    //             'password' => bcrypt($request->password), // Hash the password before saving
+    //             'email' => $request->email,
+    //             'phone_number' => $request->phone_number,
+    //             'address' => $request->address,
+    //             'role_id' => $request->role_id ?? 1, // Default role if not provided
+    //         ]);
+
+    //         return response()->json([
+    //             'message' => 'User created successfully',
+    //             'user' => $user,
+    //         ], 201);
+    //     } catch (\Exception $e) {
+    //         return response()->json(['error' => 'Unable to create user: ' . $e->getMessage()], 500);
+    //     }
+    // }
+
+    // Update an existing user (API)
+    public function update(Request $request, $id)
     {
-        // Lấy thông tin người dùng theo user_id
-        $user = User::findOrFail($user_id);
+        $user = User::find($id);
 
         if (!$user) {
             return response()->json(['error' => 'Người dùng không tồn tại'], 404);
@@ -40,8 +75,8 @@ class UserController extends Controller
 
         // Kiểm tra dữ liệu đầu vào
         $validator = Validator::make($request->all(), [
-            'username' => 'required|max:255|unique:user_pj,username,' . $user->user_id,
-            'email' => 'required|email|unique:user_pj,email,' . $user->user_id,
+            'username' => 'required|max:255|unique:user_pj,username,' . $id,
+            'email' => 'required|email|unique:user_pj,email,' . $id,
             'phone_number' => 'nullable|digits_between:10,15',
             'address' => 'nullable|max:255',
         ]);
