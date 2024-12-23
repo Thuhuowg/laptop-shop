@@ -17,3 +17,6 @@ Route::get('/register', function () {
 Route::get('/home', function () {
     return view('home');
 });
+Route::get('/product-detail', function () {
+    return view('product-detail');
+})->name('product-detail');
