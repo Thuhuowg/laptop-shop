@@ -32,21 +32,33 @@
 
     <script>
         // Hàm tải Header và Footer
-        const loadHeaderAndFooter = async () => {
-            try {
-                const [headerResponse, footerResponse] = await Promise.all([
-                    fetch('header.html'),
-                    fetch('footer.html')
-                ]);
-                const headerData = await headerResponse.text();
-                const footerData = await footerResponse.text();
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch('/fe/header/header.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('header-container').innerHTML = data;
 
-                document.getElementById('header-container').innerHTML = headerData;
-                document.getElementById('footer-container').innerHTML = footerData;
-            } catch (error) {
-                console.error('Lỗi khi tải header hoặc footer:', error);
-            }
-        };
+                    // Load header.js explicitly after header.html is fetched
+                    const script = document.createElement('script');
+                    script.src = '/fe/header/header.js';
+                    script.onload = () => {
+                        if (typeof initializeHeader === 'function') {
+                            initializeHeader(); // Call the function after header.js is loaded
+                        } else {
+                            console.error("initializeHeader function not found in header.js");
+                        }
+                    };
+                    document.body.appendChild(script);
+                })
+                .catch(err => console.error("Error loading header.html:", err));
+        });
+
+        // Chèn Footer
+        fetch('/fe/footer.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('footer-container').innerHTML = data;
+            });
 
         // Lấy product_id từ URL
         const urlParams = new URLSearchParams(window.location.search);
@@ -105,8 +117,8 @@
                         <div class="product-information">
                             <h1>Chi Tiết Sản Phẩm</h1>
                             <h2>${product.product_name}</h2>
-                            <p>Mã sản phẩm: ${product.product_id}</p>
-                            <p>Mô tả sản phẩm: ${product.description}</p>
+                            <p><Strong>Mã sản phẩm</Strong>: ${product.product_id}</p>
+                            <p><Strong>Mô tả sản phẩm</Strong>: ${product.description}</p>
                             <span>
                                 <span>${new Intl.NumberFormat('vi-VN').format(product.price)} VNĐ</span>
                                 <label>Số lượng:</label>
@@ -126,9 +138,43 @@
             }
         };
 
+        // Hàm thêm sản phẩm vào giỏ hàng
+        const addToCart = (product) => {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            
+            // Kiểm tra nếu sản phẩm đã có trong giỏ hàng
+            const existingProductIndex = cart.findIndex(item => item.product_id === product.product_id);
+            if (existingProductIndex !== -1) {
+                cart[existingProductIndex].quantity += product.quantity;
+            } else {
+                cart.push(product);
+            }
+
+            // Lưu giỏ hàng vào localStorage
+            localStorage.setItem('cart', JSON.stringify(cart));
+            alert('Sản phẩm đã được thêm vào giỏ hàng!');
+        };
+
         // Gọi các hàm để tải header, footer và chi tiết sản phẩm
-        loadHeaderAndFooter();
         loadProductDetails();
+
+        // Xử lý sự kiện "Thêm vào giỏ hàng"
+        document.querySelector(".add-to-cart").addEventListener("click", () => {
+            const productName = document.querySelector(".product-information h2").innerText;
+            const price = parseFloat(document.querySelector(".product-information span").innerText.replace(/[^\d]/g, ""));
+            const imageUrl = document.querySelector(".view-product img").src;
+            const quantity = parseInt(document.querySelector(`.cart_product_qty_${productId}`).value);
+
+            const product = {
+                product_id: productId,
+                product_name: productName,
+                price: price,
+                image_url: imageUrl,
+                quantity: quantity
+            };
+
+            addToCart(product);
+        });
     </script>
 </body>
 </html>

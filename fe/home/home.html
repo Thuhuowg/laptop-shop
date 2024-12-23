@@ -84,7 +84,7 @@
                             <div class="brands-name">
                                 <ul class="nav nav-pills nav-stacked">
                                     <!-- Danh sách thương hiệu sản phẩm (static example) -->
-                                    <li><a href="#">Apple</a></li>
+                                    <li><a href="#">MSI</a></li>
                                     <li><a href="#">HP</a></li>
                                     <li><a href="#">Dell</a></li>
                                 </ul>
@@ -107,11 +107,28 @@
 
     <script>
         // Chèn Header
-        fetch('/fe/header.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('header-container').innerHTML = data;
-            });
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch('../header/header.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('header-container').innerHTML = data;
+
+                    // Load header.js explicitly after header.html is fetched
+                    const script = document.createElement('script');
+                    script.src = '../header/header.js';
+                    script.onload = () => {
+                        if (typeof initializeHeader === 'function') {
+                            initializeHeader(); // Call the function after header.js is loaded
+                        } else {
+                            console.error("initializeHeader function not found in header.js");
+                        }
+                    };
+                    document.body.appendChild(script);
+
+                    checkAndDisplayProductLink();
+                })
+                .catch(err => console.error("Error loading header.html:", err));
+        });
 
         // Chèn Footer
         fetch('/fe/footer.html')
@@ -120,24 +137,7 @@
                 document.getElementById('footer-container').innerHTML = data;
             });
 
-        // Gọi API cho Slider
-        fetch('http://127.0.0.1:8000/api/v1/sliders')
-            .then(response => response.json())
-            .then(data => {
-                const sliderContent = document.getElementById('slider-content');
-                data.forEach((slide, index) => {
-                    const slideItem = document.createElement('div');
-                    slideItem.classList.add('item');
-                    if (index === 0) slideItem.classList.add('active');
-                    slideItem.innerHTML = `
-                        <div class="col-sm-12">
-                            <img style="width: 100%;" src="${slide.image}" class="girl img-responsive" alt="${slide.alt_text}" />
-                        </div>
-                    `;
-                    sliderContent.appendChild(slideItem);
-                });
-            })
-            .catch(error => console.log('Lỗi khi tải slider:', error));
+        
 
         // Gọi API cho Danh mục Sản phẩm
         fetch('http://127.0.0.1:8000/api/v1/categories')
@@ -158,23 +158,11 @@
             .catch(error => console.log('Lỗi khi tải danh mục:', error));
 
         // Gọi API cho Thương hiệu Sản phẩm
-        fetch('http://127.0.0.1:8000/api/v1/brands')
-            .then(response => response.json())
-            .then(data => {
-                const brandsList = document.getElementById('brands-list');
-                data.forEach(brand => {
-                    const brandItem = document.createElement('li');
-                    brandItem.innerHTML = `<a href="#">${brand.name}</a>`;
-                    brandsList.appendChild(brandItem);
-                });
-            })
-            .catch(error => console.log('Lỗi khi tải thương hiệu:', error));
 
         // Gọi API cho Sản phẩm Mới Nhất
         const loadProducts = () => {
         const storedProducts = localStorage.getItem('products');
         if (storedProducts) {
-            // Nếu có, lấy sản phẩm từ localStorage và hiển thị
             const products = JSON.parse(storedProducts);
             renderProducts(products);
         } else {
@@ -227,6 +215,54 @@
 
     // Gọi hàm loadProducts khi trang được tải
     loadProducts();
+    // Khởi tạo giỏ hàng từ localStorage
+const initializeCart = () => {
+    let cart = localStorage.getItem('cart');
+    if (!cart) {
+        localStorage.setItem('cart', JSON.stringify([]));
+    }
+};
+
+// Hàm thêm sản phẩm vào giỏ hàng
+const addToCart = (product) => {
+    let cart = JSON.parse(localStorage.getItem('cart'));
+    const existingProductIndex = cart.findIndex(item => item.id === product.id);
+
+    if (existingProductIndex !== -1) {
+        // Nếu sản phẩm đã tồn tại trong giỏ hàng, tăng số lượng
+        cart[existingProductIndex].quantity += product.quantity;
+    } else {
+        // Nếu sản phẩm chưa có trong giỏ hàng, thêm vào
+        cart.push(product);
+    }
+
+    localStorage.setItem('cart', JSON.stringify(cart));
+    alert(`Đã thêm "${product.name}" vào giỏ hàng!`);
+};
+
+// Bắt sự kiện khi click vào nút "Thêm giỏ hàng"
+document.addEventListener('click', (event) => {
+    if (event.target && event.target.classList.contains('add-to-cart')) {
+        const button = event.target;
+        const productId = button.getAttribute('data-id_product');
+        
+        // Lấy thông tin sản phẩm từ các input hidden
+        const product = {
+            id: productId,
+            name: document.querySelector(`.cart_product_name_${productId}`).value,
+            image: document.querySelector(`.cart_product_image_${productId}`).value,
+            price: parseFloat(document.querySelector(`.cart_product_price_${productId}`).value),
+            quantity: parseInt(document.querySelector(`.cart_product_qty_${productId}`).value),
+        };
+
+        // Thêm sản phẩm vào giỏ hàng
+        addToCart(product);
+    }
+});
+
+// Khởi tạo giỏ hàng khi tải trang
+initializeCart();
     </script>
+
 </body>
 </html>
