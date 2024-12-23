@@ -64,7 +64,7 @@
 
                         <!-- Link đến form đăng nhập -->
                         <div class="text-center mt-3">
-                            <p>Đã có tài khoản? <a href="/fe/login/login.html">Đăng nhập ngay</a></p>
+                            <p>Đã có tài khoản? <a href="{{ route('login') }}">Đăng nhập ngay</a></p>
                         </div>
                     </form>
                 </div>
@@ -100,7 +100,7 @@
             .then(result => {
                 if (result.success) {
                     alert('Đăng ký thành công!');
-                    window.location.href = 'http://127.0.0.1:5501/fe/login/login.html'; // Redirect to login page
+                    window.location.href = '/login'; // Redirect to login page
                 } else {
                     alert('Đăng ký thất bại! ' + result.message);
                 }
