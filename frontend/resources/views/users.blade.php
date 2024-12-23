@@ -215,7 +215,7 @@
          // Hàm hiển thị modal và điền thông tin người dùng cần sửa
     function editUser(id) {
         // Gửi yêu cầu GET để lấy thông tin chi tiết người dùng từ API
-        fetch(`http://127.0.0.1:8001/api/users/${id}`, {
+        fetch(`http://127.0.0.1:8001/api/users/${id}/edit`, {
             method: 'GET',
         })
             .then(response => {

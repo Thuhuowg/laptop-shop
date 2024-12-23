@@ -76,39 +76,50 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        document.getElementById('register-form').addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent the default form submission
+        document.getElementById('register-form').addEventListener('submit', async function (event) {
+    event.preventDefault(); // Ngăn chặn gửi form mặc định
 
-            // Gather form data
-            const formData = new FormData(this);
+    // Thu thập dữ liệu từ form
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData.entries());
 
-            // Convert FormData to a plain object for sending as JSON
-            const data = {};
-            formData.forEach((value, key) => {
-                data[key] = value;
-            });
+    // Xác thực mật khẩu
+    if (data.password !== data.password_confirmation) {
+        alert('Mật khẩu và Nhập lại mật khẩu không khớp!');
+        return; // Dừng xử lý nếu xác thực thất bại
+    }
 
-            // Send the data to the API
-            fetch('http://127.0.0.1:8001/api/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
-            })
-            .then(response => response.json())
-            .then(result => {
-                if (result.success) {
-                    alert('Đăng ký thành công!');
-                    window.location.href = '/login'; // Redirect to login page
-                } else {
-                    alert('Đăng ký thất bại! ' + result.message);
-                }
-            })
-            .catch(error => {
-                alert('Có lỗi xảy ra! ' + error.message);
-            });
+    try {
+        // Gửi dữ liệu tới API
+        const response = await fetch('http://127.0.0.1:8001/api/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
         });
+
+        // Kiểm tra trạng thái phản hồi
+        if (!response.ok) {
+            const errorResponse = await response.json();
+            alert('Đăng ký thất bại! ' + (errorResponse.message || 'Lỗi không xác định!'));
+            return; // Dừng xử lý nếu phản hồi HTTP không thành công
+        }
+
+        const result = await response.json();
+
+        // Kiểm tra phản hồi từ API
+        if (result.success) {
+            alert('Đăng ký thành công!');
+            window.location.href = '/login'; // Chuyển hướng tới trang đăng nhập
+        } else {
+            alert('Đăng ký thất bại! ' + result.message);
+        }
+    } catch (error) {
+        alert('Có lỗi xảy ra: ' + error.message);
+    }
+});
+
     </script>
 </body>
 
