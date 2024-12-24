@@ -159,7 +159,7 @@ class AuthController extends Controller
                 'password' => $request->password, // Không mã hóa mật khẩu
                 'phone_number' => $request->phone_number,
                 'address' => $request->address,
-                'role_id' => 1, // Gán role mặc định
+                'role_id' => 2, // Gán role mặc định
             ]);
             $token = JWTAuth::fromUser($user);
             return response()->json([
