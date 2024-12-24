@@ -1,3 +1,14 @@
+<meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home | Laptop-Shoppe</title>
+    <link href="/fe/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/fe/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/fe/css/prettyPhoto.css" rel="stylesheet">
+    <link href="/fe/css/price-range.css" rel="stylesheet">
+    <link href="/fe/css/animate.css" rel="stylesheet">
+    <link href="/fe/css/sweetalert.css" rel="stylesheet">
+    <link href="/fe/css/main.css" rel="stylesheet">
+    <link href="/fe/css/responsive.css" rel="stylesheet">
 <footer id="footer">
     <div class="footer-top">
         <div class="container">
@@ -40,30 +51,5 @@
 <script src="/fontend/js/jquery.js"></script>
 <script src="/fontend/js/bootstrap.min.js"></script>
 <script src="/fontend/js/sweetalert.min.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        fetch('/api/cart')
-            .then(response => response.json())
-            .then(data => {
-                const content = document.getElementById('main-content');
-                content.innerHTML = data.map(item => `
-                    <div class="product">
-                        <h3>${item.name}</h3>
-                        <p>${item.description}</p>
-                        <button class="btn btn-primary add-to-cart" data-id="${item.id}">Thêm vào giỏ</button>
-                    </div>
-                `).join('');
-            });
-
-        document.getElementById('search-button').addEventListener('click', function () {
-            const query = document.getElementById('search-input').value;
-            fetch(`/api/search?query=${query}`)
-                .then(response => response.json())
-                .then(data => {
-                    alert(`Tìm thấy ${data.length} sản phẩm.`);
-                });
-        });
-    });
-</script>
 </body>
 </html>

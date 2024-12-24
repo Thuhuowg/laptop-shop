@@ -2,65 +2,65 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\DiscountModel;
+use App\Models\Discount;
 use Illuminate\Http\Request;
 
-class DisCountController extends Controller
+class DiscountController extends Controller
 {
-    
-
-    public function all_discount(){
-        //$this->AuthLogin();
-        $discounts = DiscountModel::all();
-    	return response()->json(['data' => $discounts]);
+    public function index()
+    {
+        $discounts = Discount::where('is_deleted', 0)->get();
+        return response()->json($discounts);
     }
 
-    public function save_discount(Request $request){
+    public function show($id)
+    {
+        $discount = Discount::find($id);
+        if (!$discount) {
+            return response()->json(['message' => 'Discount not found'], 404);
+        }
+        return response()->json($discount);
+    }
+
+    public function store(Request $request)
+    {
         $request->validate([
             'discount_name' => 'required|string|max:255',
-            'discount_percent' => 'required|string|max:10',
+            'discount_percent' => 'required|numeric|min:0|max:100',
             'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
+            'end_date' => 'required|date|after:start_date',
         ]);
 
-        $discount = DiscountModel::create([
-            'discount_name' => $request->discount_name,
-            'discount_percent' => $request->discount_percent,
-            'start_date' => $request->start_date,
-            'end_date' => $request->end_date,
-        ]);
-
-        return response()->json(['discount' => $discount,], 201);
+        $discount = Discount::create($request->all());
+        return response()->json($discount, 201);
     }
 
-    public function edit_discount($discount_id){
-        //$this->AuthLogin();
-        $edit_discount = DiscountModel::findOrFail($discount_id);
-        return response()->json(['data' => $edit_discount]);
-    }
+    public function update(Request $request, $id)
+    {
+        $discount = Discount::find($id);
+        if (!$discount) {
+            return response()->json(['message' => 'Discount not found'], 404);
+        }
 
-    public function update_discount(Request $request,$discount_id){
         $request->validate([
-            'discount_name' => 'required|string|max:255',
-            'discount_percent' => 'required|string|max:10',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
+            'discount_name' => 'sometimes|required|string|max:255',
+            'discount_percent' => 'sometimes|required|numeric|min:0|max:100',
+            'start_date' => 'sometimes|required|date',
+            'end_date' => 'sometimes|required|date|after:start_date',
         ]);
-        $discount = DiscountModel::findOrFail($discount_id);
-        
-        $discount->update([
-            'discount_name' => $request->discount_name,
-            'discount_percent' => $request->discount_percent,
-            'start_date' => $request->start_date,
-            'end_date' => $request->end_date,
-        ]);
-        $discount->save();
-        return response()->json(['data' => $discount, 'redirect' => route('all-discount')],200);
+
+        $discount->update($request->all());
+        return response()->json($discount);
     }
 
-    public function delete_discount($discount_id){
-        $discount = DiscountModel::findOrFail($discount_id);
-        $discount->delete();
-        return response()->json(['data' => $discount],200);
+    public function destroy($id)
+    {
+        $discount = Discount::find($id);
+        if (!$discount) {
+            return response()->json(['message' => 'Discount not found'], 404);
+        }
+
+        $discount->update(['is_deleted' => 1]);
+        return response()->json(['message' => 'Discount deleted']);
     }
 }

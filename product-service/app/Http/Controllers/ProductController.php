@@ -2,151 +2,109 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CategoryModel;
-use App\Models\DiscountModel;
+use App\Models\Product;
 use Illuminate\Http\Request;
-use App\Models\ProductModel;
-use DB;
-use Illuminate\Support\Facades\Redirect;
 
 class ProductController extends Controller
 {
-    //admin
-    // public function AuthLogin(){
-    //     $admin_id = Session::get('admin_id');
-    //     if($admin_id){
-    //         return Redirect::to('dashboard');
-    //     }else{
-    //         return Redirect::to('admin')->send();
-    //     }
-    // }
-    
-    public function add_product(){
-        //$this->AuthLogin();
-        $cate_product = CategoryModel::orderBy('category_name', 'asc')->get();
-        $discounts = DiscountModel::orderBy('discount_name', 'asc')->get();
-        return response()->json([
-            'cate_product' => $cate_product,
-            'discounts' => $discounts,
-        ]);
-    }
-    public function all_product(){
-        //$this->AuthLogin();
-    	$all_product = ProductModel::with(['category', 'discount'])->get();
-        return response()->json(['data' => $all_product]);
+    // Hiển thị danh sách sản phẩm chưa bị xóa
+    public function index()
+    {
+        // Lấy danh sách sản phẩm chưa xóa, kèm theo danh mục và giảm giá
+        $products = Product::with(['category', 'discount'])->where('is_deleted', 0)->get();
+        return response()->json($products);
     }
 
-    public function save_product(Request $request){
+    // Hiển thị thông tin chi tiết của một sản phẩm
+    public function show($id)
+    {
+        // Tìm sản phẩm theo product_id (kiểu VARCHAR) và kiểm tra xem sản phẩm chưa bị xóa
+        $product = Product::with(['category', 'discount'])
+                          ->where('product_id', $id)  // Kiểm tra product_id
+                          ->where('is_deleted', 0)    // Kiểm tra sản phẩm chưa bị xóa
+                          ->first();
+
+        // Nếu không tìm thấy sản phẩm
+        if (!$product) {
+            return response()->json(['message' => 'Product not found'], 404);
+        }
+
+        // Trả về thông tin sản phẩm
+        return response()->json($product);
+    }
+
+    // Thêm mới một sản phẩm
+    public function store(Request $request)
+    {   
+        dd($request->all());
+        // Xác nhận đầu vào của người dùng khi thêm sản phẩm mới
         $request->validate([
-            'product_name' => 'required|string|max:255',
-            'category_id' => 'required|integer|exists:categories',
-            'discount_id' => 'required|integer|exists:discounts',
-            'product_desc' => 'nullable|string',
-            'product_price' => 'required|numeric|min:0',
-            'product_image' => 'nullable|image',
-            'product_status' => 'required|integer|in:0,1',
+            'product_id' => 'required|string|max:100|unique:products,product_id', // product_id cần duy nhất
+            'product_name' => 'required|string|max:50',
+            'price' => 'required|numeric|min:0',
+            'category_id' => 'required|exists:categories,category_id',
+            'discount_id' => 'nullable|exists:discounts,discount_id',
+            'image_url' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
         ]);
-        
-        $imagePath = null;
-        if ($request->hasFile('product_image')) {
-            $image = $request->file('product_image');
-            $imagePath = rand() . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('upload/product'), $imagePath);
+
+        // Tạo mới sản phẩm
+        $product = Product::create([
+            'product_id' => $request->input('product_id'),
+            'product_name' => $request->input('product_name'),
+            'description' => $request->input('description'),
+            'price' => $request->input('price'),
+            'category_id' => $request->input('category_id'),
+            'image_url' => $request->input('image_url'),
+            'discount_id' => $request->input('discount_id'),
+        ]);
+
+        return response()->json($product, 201);
+    }
+
+    // Cập nhật thông tin sản phẩm
+    public function update(Request $request, string $id)
+    {
+        // Tìm sản phẩm theo product_id (kiểu VARCHAR)
+        $product = Product::where('product_id', $id)->where('is_deleted', 0)->first();
+        if (!$product) {
+            return response()->json(['message' => 'Product not found'], 404);
         }
 
-        $product = ProductModel::create([
-            'product_name' => $request->input('product_name'),
-            'category_id' => $request->input('product_cate'),
-            'discount_id' => $request->input('discount_id'),
-            'product_desc' => $request->input('product_desc'),
-            'product_price' => $request->input('product_price'),
-            'product_image' => $imagePath,
-            'product_status' => (int)$request->input('product_status'),
-        ]);
-
-        return response()->json(['data' => $product], 201);
-    }
-    public function unactive_product($product_id){
-        //$this->AuthLogin();
-        ProductModel::where('product_id', $product_id)->update(['product_status' => 0]);
-        return Redirect::to('all-product');
-    }
-    public function active_product($product_id){
-        //$this->AuthLogin();
-        ProductModel::where('product_id', $product_id)->update(['product_status' => 1]);
-        return Redirect::to('all-product');
-    }
-    public function edit_product($product_id){
-        //$this->AuthLogin();
-        $edit_product = ProductModel::with(['category', 'discount'])->find($product_id);
-        return response()->json(['data' => $edit_product]);
-
-    }
-
-    public function update_product(Request $request,$product_id){
+        // Xác nhận đầu vào của người dùng khi cập nhật sản phẩm
         $request->validate([
-            'product_name' => 'required|string|max:255',
-            'category_id' => 'required|integer|exists:categories',
-            'discount_id' => 'required|integer|exists:discounts',
-            'product_desc' => 'nullable|string',
-            'product_price' => 'required|numeric|min:0',
-            'product_image' => 'nullable|image',
-        ]);
-        
-        $imagePath = null;
-        if ($request->hasFile('product_image')) {
-            $image = $request->file('product_image');
-            $imagePath = rand() . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('upload/product'), $imagePath);
-        }
-
-        $product = ProductModel::findOrFail($product_id);
-
-        $product ->update([
-            'product_name' => $request->input('product_name'),
-            'category_id' => $request->input('product_cate'),
-            'discount_id' => $request->input('discount_id'),
-            'product_desc' => $request->input('product_desc'),
-            'product_price' => $request->input('product_price'),
-            'product_image' => $imagePath,
+            'product_name' => 'sometimes|required|string|max:50',
+            'price' => 'sometimes|required|numeric|min:0',
+            'category_id' => 'sometimes|required|exists:categories,category_id',
+            'discount_id' => 'nullable|exists:discounts,discount_id',
+            'image_url' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
         ]);
 
-        return response()->json(['data' => $product, 'redirect' => ('/all-product')], 200);
+        // Cập nhật thông tin sản phẩm
+        $product->update([
+            'product_name' => $request->input('product_name', $product->product_name),
+            'description' => $request->input('description', $product->description),
+            'price' => $request->input('price', $product->price),
+            'category_id' => $request->input('category_id', $product->category_id),
+            'discount_id' => $request->input('discount_id', $product->discount_id),
+            'image_url' => $request->input('image_url', $product->image_url),
+        ]);
+
+        return response()->json($product);
     }
 
-    public function delete_product($product_id){
-        //$this->AuthLogin();
-        $product = ProductModel::findOrFail($product_id);
-        $product->delete();
-        return response()->json(['data' => $product],200);
-    }
-
-    //end admin
-
-    public function details_product($product_id){
-        $cate_product = DB::table('tbl_category_product')->where('category_status', 1)->orderby('category_id','asc')->get(); 
-        
-        $brand_product = DB::table('tbl_brand')->where('brand_status', 1)->orderby('brand_id','asc')->get();
-
-        $details_product = DB::table('tbl_product')
-        ->join('tbl_category_product','tbl_category_product.category_id','=','tbl_product.category_id')
-        ->join('tbl_brand','tbl_brand.brand_id','=','tbl_product.brand_id')
-        ->where('tbl_product.product_id',$product_id)->get();
-
-        foreach($details_product as $key => $value){
-            $category_id = $value->category_id;
+    // Xóa một sản phẩm (soft delete)
+    public function destroy( string $id)
+    {
+        // Tìm sản phẩm theo product_id (kiểu VARCHAR)
+        $product = Product::where('product_id', $id)->where('is_deleted', 0)->first();
+        if (!$product) {
+            return response()->json(['message' => 'Product not found'], 404);
         }
-       
-        $related_product = DB::table('tbl_product')
-        ->join('tbl_category_product','tbl_category_product.category_id','=','tbl_product.category_id')
-        ->join('tbl_brand','tbl_brand.brand_id','=','tbl_product.brand_id')
-        ->where('tbl_category_product.category_id',$category_id)
-        ->whereNotIn('tbl_product.product_id',[$product_id])->get();
 
-        return view('layout.web.product.show_details')
-            ->with('category',$cate_product)
-            ->with('brand',$brand_product)
-            ->with('product_details',$details_product)
-            ->with('related',$related_product);
+        // Đánh dấu sản phẩm là đã xóa
+        $product->update(['is_deleted' => 1]);
+        return response()->json(['message' => 'Product deleted']);
     }
 }
