@@ -70,33 +70,33 @@ class UserController extends Controller
         $user = User::find($id);
 
         if (!$user) {
-            return response()->json(['error' => 'Người dùng không tồn tại'], 404);
+            return response()->json(['error' => 'User not found'], 404);
         }
 
-        // Kiểm tra dữ liệu đầu vào
+        // Validate incoming data
         $validator = Validator::make($request->all(), [
-            'username' => 'required|max:255|unique:user_pj,username,' . $id,
-            'email' => 'required|email|unique:user_pj,email,' . $id,
-            'phone_number' => 'nullable|digits_between:10,15',
+            'username' => 'required|max:255|unique:user_pj,username,' . $id . ',user_id',
+            'email' => 'required|email|unique:user_pj,email,' . $id . ',user_id',
+            'phone_number' => 'nullable|digits_between:5,10',
             'address' => 'nullable|max:255',
+            'password' => 'nullable|min:6', // Password must be at least 8 characters
         ]);
 
-        // Nếu kiểm tra dữ liệu không hợp lệ, trả về lỗi
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
-        // Cập nhật dữ liệu người dùng
+        // Update user data
         $user->update($request->only('username', 'email', 'phone_number', 'address', 'role_id'));
 
-        // Nếu có mật khẩu mới, cập nhật mật khẩu
+        // Update password if provided
         if ($request->filled('password')) {
             $user->update(['password' => bcrypt($request->password)]);
         }
 
-        // Trả về thông báo thành công và thông tin người dùng đã cập nhật
-        return response()->json(['message' => 'Cập nhật người dùng thành công', 'user' => $user]);
+        return response()->json(['message' => 'User updated successfully', 'user' => $user]);
     }
+
 
     // Xóa người dùng (API)
     public function destroy($user_id)

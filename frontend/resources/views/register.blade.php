@@ -26,7 +26,8 @@
                         <!-- Tên người dùng -->
                         <div class="form-outline mb-4">
                             <label class="form-label" for="username">Tên người dùng</label>
-                            <input type="text" id="username" name="username" class="form-control form-control-lg" required>
+                            <input type="text" id="username" name="username" class="form-control form-control-lg"
+                                required>
                         </div>
 
                         <!-- Email -->
@@ -38,25 +39,29 @@
                         <!-- Mật khẩu -->
                         <div class="form-outline mb-4">
                             <label class="form-label" for="password">Mật khẩu</label>
-                            <input type="password" id="password" name="password" class="form-control form-control-lg" required>
+                            <input type="password" id="password" name="password" class="form-control form-control-lg"
+                                required>
                         </div>
 
                         <!-- Nhập lại mật khẩu -->
                         <div class="form-outline mb-4">
                             <label class="form-label" for="password_confirmation">Nhập lại mật khẩu</label>
-                            <input type="password" id="password_confirmation" name="password_confirmation" class="form-control form-control-lg" required>
+                            <input type="password" id="password_confirmation" name="password_confirmation"
+                                class="form-control form-control-lg" required>
                         </div>
 
                         <!-- Số điện thoại -->
                         <div class="form-outline mb-4">
                             <label class="form-label" for="phone_number">Số điện thoại</label>
-                            <input type="text" id="phone_number" name="phone_number" class="form-control form-control-lg" required>
+                            <input type="text" id="phone_number" name="phone_number"
+                                class="form-control form-control-lg" required>
                         </div>
 
                         <!-- Địa chỉ -->
                         <div class="form-outline mb-4">
                             <label class="form-label" for="address">Địa chỉ</label>
-                            <input type="text" id="address" name="address" class="form-control form-control-lg" required>
+                            <input type="text" id="address" name="address" class="form-control form-control-lg"
+                                required>
                         </div>
 
                         <!-- Submit button -->
@@ -77,48 +82,52 @@
 
     <script>
         document.getElementById('register-form').addEventListener('submit', async function (event) {
-    event.preventDefault(); // Ngăn chặn gửi form mặc định
+            event.preventDefault(); // Ngăn chặn gửi form mặc định
 
-    // Thu thập dữ liệu từ form
-    const formData = new FormData(this);
-    const data = Object.fromEntries(formData.entries());
+            // Thu thập dữ liệu từ form
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
 
-    // Xác thực mật khẩu
-    if (data.password !== data.password_confirmation) {
-        alert('Mật khẩu và Nhập lại mật khẩu không khớp!');
-        return; // Dừng xử lý nếu xác thực thất bại
-    }
+            // Xác thực mật khẩu
+            if (data.password !== data.password_confirmation) {
+                alert('Mật khẩu và Nhập lại mật khẩu không khớp!');
+                return; // Dừng xử lý nếu xác thực thất bại
+            }
 
-    try {
-        // Gửi dữ liệu tới API
-        const response = await fetch('http://127.0.0.1:8001/api/register', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
+            try {
+                // Gửi dữ liệu tới API
+                const response = await fetch('http://127.0.0.1:8001/api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                // Log trạng thái phản hồi
+                console.log('HTTP status:', response.status);
+                console.log('Response headers:', response.headers);
+
+                const result = await response.json();
+                console.log('API result:', result);
+
+                // Kiểm tra xem phản hồi có thành công không
+                if (response.ok) {
+                    // Kiểm tra kết quả từ API
+                    if (result.success) {
+                        alert('Đăng ký thành công!');
+                        window.location.href = '/login';
+                    } else {
+                        alert('Đăng ký thất bại! ' + (result.message || 'Lỗi không xác định!'));
+                    }
+                } else {
+                    // Xử lý trường hợp có lỗi từ API
+                    alert('Đã có lỗi xảy ra: ' + (result.message || 'Lỗi không xác định!'));
+                }
+            } catch (error) {
+                alert('Có lỗi xảy ra: ' + error.message);
+            }
         });
-
-        // Kiểm tra trạng thái phản hồi
-        if (!response.ok) {
-            const errorResponse = await response.json();
-            alert('Đăng ký thất bại! ' + (errorResponse.message || 'Lỗi không xác định!'));
-            return; // Dừng xử lý nếu phản hồi HTTP không thành công
-        }
-
-        const result = await response.json();
-
-        // Kiểm tra phản hồi từ API
-        if (result.success) {
-            alert('Đăng ký thành công!');
-            window.location.href = '/login'; // Chuyển hướng tới trang đăng nhập
-        } else {
-            alert('Đăng ký thất bại! ' + result.message);
-        }
-    } catch (error) {
-        alert('Có lỗi xảy ra: ' + error.message);
-    }
-});
 
     </script>
 </body>
