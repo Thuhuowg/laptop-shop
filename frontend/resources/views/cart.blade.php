@@ -35,7 +35,7 @@
         </table>
         <div class="text-right">
             <h3 id="cart-total">Tổng: 0 VNĐ</h3>
-            <a href="http://127.0.0.1:5501/fe/checkout/checkout.html">
+            <a href="/fe/checkout/checkout.html">
             <button  class="btn btn-primary" id="checkout-button">Thanh Toán</button>
         </a>
         </div>
@@ -124,34 +124,7 @@
         // });
 
         // Chèn Header và Footer
-        document.addEventListener("DOMContentLoaded", function () {
-            fetch('../header/header.html')
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById('header-container').innerHTML = data;
-
-                    // Load header.js explicitly after header.html is fetched
-                    const script = document.createElement('script');
-                    script.src = '../header/header.js';
-                    script.onload = () => {
-                        if (typeof initializeHeader === 'function') {
-                            initializeHeader(); // Call the function after header.js is loaded
-                        } else {
-                            console.error("initializeHeader function not found in header.js");
-                        }
-                    };
-                    document.body.appendChild(script);
-
-                    checkAndDisplayProductLink();
-                })
-                .catch(err => console.error("Error loading header.html:", err));
-        });
-
-        fetch('/fe/footer.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('footer-container').innerHTML = data;
-            });
+        
     </script>
 </body>
 </html>

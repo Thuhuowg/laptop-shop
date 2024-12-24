@@ -11,7 +11,7 @@
 
     <div class="container">
         <h2 class="title text-center">Thông Tin Thanh Toán</h2>
-        <form id="checkout-form">
+        <form id="checkout-form" onsubmit="return false;">
             <div class="form-group">
                 <label for="name">Tên:</label>
                 <input type="text" id="name" class="form-control" autocomplete="name" required>
@@ -37,7 +37,7 @@
                 <p id="total-amount" class="form-control-static"></p>
             </div>
         </form>
-        <form id="payment-form">
+        <div id="payment-form">
             <div class="form-group">
                 <label for="amount">Nhập đúng số tiền cần thanh toán:</label>
                 <input type="number" id="amount" name="amount" class="form-control" placeholder="Số tiền (VND)" required>
@@ -50,49 +50,43 @@
                 Thanh toán COD
             </button>
             <div id="message" class="text-danger mt-3"></div>
-        </form>
+        </div>
     </div>
 
     <div id="footer-container"></div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
+        
+            // Load Header
             fetch('../header/header.html')
                 .then(response => response.text())
                 .then(data => {
                     document.getElementById('header-container').innerHTML = data;
 
-                    // Load header.js explicitly after header.html is fetched
                     const script = document.createElement('script');
                     script.src = '../header/header.js';
                     script.onload = () => {
                         if (typeof initializeHeader === 'function') {
-                            initializeHeader(); // Call the function after header.js is loaded
-                        } else {
-                            console.error("initializeHeader function not found in header.js");
+                            initializeHeader();
                         }
                     };
                     document.body.appendChild(script);
                 })
                 .catch(err => console.error("Error loading header.html:", err));
-        });
 
-        // Chèn Footer
-        fetch('/fe/footer.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('footer-container').innerHTML = data;
-            });
+            // Load Footer
+            fetch('/fe/footer.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('footer-container').innerHTML = data;
+                });
 
-        document.addEventListener("DOMContentLoaded", function () {
-            // Lấy giỏ hàng từ localStorage và tính tổng số tiền
+            // Lấy giỏ hàng và tính tổng tiền
             const cart = JSON.parse(localStorage.getItem('cart')) || [];
             let totalAmount = 0;
-
             cart.forEach(item => {
-                totalAmount += item.price * item.quantity; // Giả sử có thuộc tính price và quantity trong item
+                totalAmount += item.price * item.quantity;
             });
-
             document.getElementById('total-amount').textContent = totalAmount.toLocaleString() + ' VND';
 
             const paymentMethodSelect = document.getElementById('payment-method');
@@ -134,27 +128,23 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ amount: amount, method: 'vnpay' })
                 })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log('Response Data:', data);
-                        if (data.code === '00') {
-                            console.log('VNPay URL:', data.data);
-                            window.location.href = data.data; // Redirect đến VNPay URL
-                        } else {
-                            document.getElementById('message').textContent = 'Lỗi: ' + data.message;
-                        }
-                    })
-                    .catch(err => {
-                        console.error('Lỗi:', err);
-                        document.getElementById('message').textContent = 'Đã xảy ra lỗi, vui lòng thử lại.';
-                    });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === '00') {
+                        window.location.href = data.data; // Chuyển hướng đến URL VNPay
+                    } else {
+                        document.getElementById('message').textContent = 'Lỗi: ' + data.message;
+                    }
+                })
+                .catch(err => {
+                    document.getElementById('message').textContent = 'Đã xảy ra lỗi, vui lòng thử lại.';
+                });
             }
 
             function handleCODPayment() {
-                alert('Đơn hàng của bạn đã được tạo. Vui lòng thanh toán khi nhận hàng.');
-                document.getElementById('message').textContent = 'Thanh toán COD thành công.';
+                window.location.href = "/fe/thankyou.html"; // Đường dẫn đến trang Thank You
             }
-        });
+        
     </script>
 </body>
 </html>

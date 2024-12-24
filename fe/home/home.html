@@ -84,9 +84,10 @@
                             <div class="brands-name">
                                 <ul class="nav nav-pills nav-stacked">
                                     <!-- Danh sách thương hiệu sản phẩm (static example) -->
-                                    <li><a href="#">MSI</a></li>
-                                    <li><a href="#">HP</a></li>
-                                    <li><a href="#">Dell</a></li>
+                                    <li><a href="/fe/msi.html" data-brand="MSI">MSI</a></li>
+                                    <li><a href="/fe/hp.html" data-brand="HP">HP</a></li>
+                                    <li><a href="#" data-brand="Dell">Dell</a></li>
+                                    <li><a href="/fe/lenovo.html" data-brand="Lenovo">Lenovo</a></li>
                                 </ul>
                             </div>
                         </div><!--/brands_products-->
@@ -107,7 +108,7 @@
 
     <script>
         // Chèn Header
-        document.addEventListener("DOMContentLoaded", function () {
+        
             fetch('../header/header.html')
                 .then(response => response.text())
                 .then(data => {
@@ -128,7 +129,7 @@
                     checkAndDisplayProductLink();
                 })
                 .catch(err => console.error("Error loading header.html:", err));
-        });
+       
 
         // Chèn Footer
         fetch('/fe/footer.html')
@@ -244,6 +245,7 @@ const addToCart = (product) => {
     localStorage.setItem('cart', JSON.stringify(cart));
     alert(`Đã thêm "${product.name}" vào giỏ hàng!`);
 };
+// Lọc sản phẩm theo thương hiệu
 
 // Bắt sự kiện khi click vào nút "Thêm giỏ hàng"
 document.addEventListener('click', (event) => {

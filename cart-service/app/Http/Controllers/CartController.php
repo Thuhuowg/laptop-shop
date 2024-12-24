@@ -4,38 +4,21 @@ namespace App\Http\Controllers;
 
 use App\Models\CartItem;
 use Illuminate\Http\Request;
-use Tymon\JWTAuth\Facades\JWTAuth;
-use Tymon\JWTAuth\Exceptions\JWTException;
 
 class CartController extends Controller
 {
-    // Lấy user_id từ người dùng đã đăng nhập qua token JWT
+    // Trả về user_id cố định là 10
     private function getUserId(Request $request)
     {
-        try {
-            // Giải mã token JWT và lấy thông tin người dùng
-            $user = JWTAuth::parseToken()->authenticate();
-
-            if (!$user) {
-                return null;
-            }
-
-            return $user->id;
-        } catch (JWTException $e) {
-            return null;
-        }
+        return 10;
     }
 
     // Lấy danh sách giỏ hàng của người dùng
     public function getCart(Request $request)
     {
-        $userId = $this->getUserId($request); // Lấy user_id từ người dùng đã đăng nhập
+        $userId = $this->getUserId($request);
 
-        if (is_null($userId)) {
-            return response()->json(['error' => 'User not authenticated'], 401);
-        }
-
-        $cartItems = CartItem::where('user_id', $userId)  // Dùng user_id để tìm các item trong giỏ hàng
+        $cartItems = CartItem::where('user_id', $userId)
             ->where('is_deleted', false)
             ->get();
 
@@ -50,10 +33,7 @@ class CartController extends Controller
             'quantity' => 'required|integer|min:1',
         ]);
 
-        $userId = $this->getUserId($request); // Lấy user_id từ người dùng đã đăng nhập qua token JWT
-        if (is_null($userId)) {
-            return response()->json(['error' => 'User not authenticated'], 401);
-        }
+        $userId = $this->getUserId($request);
 
         $existingItem = CartItem::where('user_id', $userId)
             ->where('product_id', $validated['product_id'])
@@ -82,10 +62,7 @@ class CartController extends Controller
             'quantity' => 'required|integer|min:1',
         ]);
 
-        $userId = $this->getUserId($request); // Lấy user_id từ người dùng đã đăng nhập qua token JWT
-        if (is_null($userId)) {
-            return response()->json(['error' => 'User not authenticated'], 401);
-        }
+        $userId = $this->getUserId($request);
 
         $cartItem = CartItem::where('cart_id', $id)
             ->where('user_id', $userId)
@@ -100,10 +77,7 @@ class CartController extends Controller
     // Xóa sản phẩm khỏi giỏ hàng
     public function destroy(Request $request, $id)
     {
-        $userId = $this->getUserId($request); // Lấy user_id từ người dùng đã đăng nhập qua token JWT
-        if (is_null($userId)) {
-            return response()->json(['error' => 'User not authenticated'], 401);
-        }
+        $userId = $this->getUserId($request);
 
         $cartItem = CartItem::where('cart_id', $id)
             ->where('user_id', $userId)
@@ -118,10 +92,7 @@ class CartController extends Controller
     // Xóa toàn bộ giỏ hàng của người dùng
     public function clear(Request $request)
     {
-        $userId = $this->getUserId($request); // Lấy user_id từ người dùng đã đăng nhập qua token JWT
-        if (is_null($userId)) {
-            return response()->json(['error' => 'User not authenticated'], 401);
-        }
+        $userId = $this->getUserId($request);
 
         CartItem::where('user_id', $userId)->update(['is_deleted' => true]);
 

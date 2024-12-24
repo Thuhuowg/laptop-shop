@@ -136,40 +136,62 @@
                 document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
             }
 
-            // Function to check if a token exists
-            function getToken() {
-                const cookieString = document.cookie.split('; ').find(row => row.startsWith('token='));
+            // Function to get the value of a specific cookie
+            function getCookie(name) {
+                const cookieString = document.cookie.split('; ').find(row => row.startsWith(`${name}=`));
                 return cookieString ? cookieString.split('=')[1] : null;
             }
 
             // Function to handle logout
             function handleLogout() {
-                deleteCookie('token');
-                localStorage.removeItem('user_id');
-                localStorage.removeItem('username'); // Xóa tên người dùng
+                deleteCookie('token'); // Xóa token khi đăng xuất
                 updateAuthLink(); // Cập nhật lại liên kết đăng nhập/đăng xuất
                 window.location.href = '/'; // Chuyển hướng về trang chủ sau khi đăng xuất
             }
 
-            // Function to update the auth link based on token presence
-            function updateAuthLink() {
-                const authLink = document.getElementById('auth-link');
-                if (!authLink) {
-                    console.error("Element with ID 'auth-link' not found in DOM.");
-                    return;
+            // Function to fetch user info from API
+            async function fetchUserInfo() {
+                const token = getCookie('token'); // Lấy token từ cookie
+                if (!token) {
+                    return null; // Không có token thì không lấy được thông tin
                 }
 
-                const token = getToken();
-                if (token) {
-                    authLink.textContent = 'Đăng xuất';
-                    authLink.href = 'http://127.0.0.1:8005/login';
-                    authLink.addEventListener('click', function () {
+                try {
+                    const response = await fetch('http://127.0.0.1:8001/api/users/{id}', {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}` // Gửi token trong header
+                        }
+                    });
+
+                    if (response.ok) {
+                        const user = await response.json();
+                        return user; // Trả về thông tin người dùng
+                    } else {
+                        console.error('Failed to fetch user info:', response.status);
+                        return null;
+                    }
+                } catch (error) {
+                    console.error('Error fetching user info:', error);
+                    return null;
+                }
+            }
+
+            // Function to update the auth link based on user info
+            async function updateAuthLink() {
+                const userIcon = document.getElementById('user-icon');
+                const user = await fetchUserInfo(); // Lấy thông tin người dùng từ API
+
+                if (user && user.username) {
+                    userIcon.innerHTML = `<i class="fa fa-user"></i> ${user.username}`; // Hiển thị tên người dùng
+                    userIcon.href = 'javascript:void(0)'; // Không chuyển hướng
+                    userIcon.addEventListener('click', function () {
                         handleLogout();
                     });
                 } else {
-                    authLink.textContent = 'Đăng nhập';
-                    authLink.href = 'http://127.0.0.1:8005/login'; // Đường dẫn đến trang đăng nhập
-                    authLink.removeEventListener('click', handleLogout); // Xóa sự kiện đăng xuất nếu có
+                    userIcon.innerHTML = `<i class="fa fa-user"></i> Đăng Nhập`;
+                    userIcon.href = '/login'; // Đường dẫn đến trang đăng nhập
+                    userIcon.removeEventListener('click', handleLogout); // Xóa sự kiện đăng xuất nếu có
                 }
             }
 
@@ -177,8 +199,9 @@
             updateAuthLink();
         }
 
-        // Ensure the function runs after header.html is loaded into the DOM
+        // Ensure the function runs after DOM is loaded
         document.addEventListener('DOMContentLoaded', initializeHeader);
+
         const updateCartCount = () => {
             const cart = JSON.parse(localStorage.getItem("cart")) || [];
             const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
@@ -188,6 +211,8 @@
         // Cập nhật ngay khi tải trang
         updateCartCount();
     </script>
+
+    <!-- //script hiển thị sản phẩm -->
     <script>
         // Gọi API để lấy sản phẩm
         fetch('http://127.0.0.1:8000/api/v1/products', {
@@ -251,35 +276,10 @@
             });
         };
     </script>
+
+
+    <!-- // script product detail -->
     <script>
-        // Hàm tải Header và Footer
-        document.addEventListener("DOMContentLoaded", function () {
-            fetch('/fe/header/header.html')
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById('header-container').innerHTML = data;
-
-                    // Load header.js explicitly after header.html is fetched
-                    const script = document.createElement('script');
-                    script.src = '/fe/header/header.js';
-                    script.onload = () => {
-                        if (typeof initializeHeader === 'function') {
-                            initializeHeader(); // Call the function after header.js is loaded
-                        } else {
-                            console.error("initializeHeader function not found in header.js");
-                        }
-                    };
-                    document.body.appendChild(script);
-                })
-                .catch(err => console.error("Error loading header.html:", err));
-        });
-
-        // Chèn Footer
-        fetch('/fe/footer.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('footer-container').innerHTML = data;
-            });
 
         // Lấy product_id từ URL
         const urlParams = new URLSearchParams(window.location.search);
@@ -288,7 +288,7 @@
         // Hàm tải chi tiết sản phẩm
         const loadProductDetails = async () => {
             if (!productId) {
-                alert('Không tìm thấy ID sản phẩm!');
+                
                 return;
             }
 
@@ -384,6 +384,176 @@
         });
     </script>
 
+    <!-- //script checkout -->
+    <script>
+        // document.addEventListener("DOMContentLoaded", function () {
+        //     fetch('../header/header.html')
+        //         .then(response => response.text())
+        //         .then(data => {
+        //             document.getElementById('header-container').innerHTML = data;
+
+        //             // Load header.js explicitly after header.html is fetched
+        //             const script = document.createElement('script');
+        //             script.src = '../header/header.js';
+        //             script.onload = () => {
+        //                 if (typeof initializeHeader === 'function') {
+        //                     initializeHeader(); // Call the function after header.js is loaded
+        //                 } else {
+        //                     console.error("initializeHeader function not found in header.js");
+        //                 }
+        //             };
+        //             document.body.appendChild(script);
+
+
+        //         })
+        //         .catch(err => console.error("Error loading header.html:", err));
+        // });
+
+        // // Chèn Footer
+        // fetch('/fe/footer.html')
+        //     .then(response => response.text())
+        //     .then(data => {
+        //         document.getElementById('footer-container').innerHTML = data;
+        //     });
+        document.addEventListener("DOMContentLoaded", function () {
+            // Lấy giỏ hàng từ localStorage và tính tổng số tiền
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            let totalAmount = 0;
+
+            cart.forEach(item => {
+                totalAmount += item.price * item.quantity; // Giả sử có thuộc tính price và quantity trong item
+            });
+
+            document.getElementById('total-amount').textContent = totalAmount.toLocaleString() + ' VND';
+
+            const paymentMethodSelect = document.getElementById('payment-method');
+            const vnpayBtn = document.getElementById('vnpay-btn');
+            const codBtn = document.getElementById('cod-btn');
+
+            paymentMethodSelect.addEventListener('change', function () {
+                const selectedMethod = paymentMethodSelect.value;
+                if (selectedMethod === 'vnpay') {
+                    vnpayBtn.style.display = 'inline-block';
+                    codBtn.style.display = 'none';
+                } else if (selectedMethod === 'cash') {
+                    codBtn.style.display = 'inline-block';
+                    vnpayBtn.style.display = 'none';
+                } else {
+                    vnpayBtn.style.display = 'none';
+                    codBtn.style.display = 'none';
+                }
+            });
+
+            vnpayBtn.addEventListener('click', function () {
+                handleVNPayPayment();
+            });
+
+            codBtn.addEventListener('click', function () {
+                handleCODPayment();
+            });
+
+            function handleVNPayPayment() {
+                const amount = document.getElementById('amount').value;
+
+                if (!amount || amount <= 0) {
+                    document.getElementById('message').textContent = 'Vui lòng nhập số tiền hợp lệ!';
+                    return;
+                }
+
+                fetch('http://localhost:8003/api/payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount: amount, method: 'vnpay' })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.code === '00') {
+                            window.location.href = data.data; // Redirect đến VNPay URL
+                        } else {
+                            document.getElementById('message').textContent = 'Lỗi: ' + data.message;
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Lỗi:', err);
+                        document.getElementById('message').textContent = 'Đã xảy ra lỗi, vui lòng thử lại.';
+                    });
+            }
+
+            function handleCODPayment() {
+                alert('Đơn hàng của bạn đã được tạo. Vui lòng thanh toán khi nhận hàng.');
+                document.getElementById('message').textContent = 'Thanh toán COD thành công.';
+            }
+        });
+    </script>
+
+    <!-- //script payment -->
+    <script>
+
+        // Xử lý khi nhấn nút tạo thanh toán
+        document.getElementById('submit-button').addEventListener('click', function () {
+            const data = {
+                order_id: document.getElementById('order_id').value,
+                payment_method: document.getElementById('payment_method').value,
+                payment_status: document.getElementById('payment_status').value,
+                amount: document.getElementById('amount').value
+            };
+            fetch('http://127.0.0.1:8002/api/payments/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Thanh toán đã được tạo thành công!');
+                    } else {
+                        alert('Có lỗi xảy ra: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Không thể kết nối đến API.');
+                });
+            // Gửi dữ liệu đến backend
+
+        });
+    </script>
+
+    <!-- //script product -->
+    <script>
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Gọi API và tải nội dung sản phẩm
+            fetch('http://127.0.0.1:8000/api/v1/products')
+                .then(response => response.json())
+                .then(data => {
+                    const productGrid = document.getElementById('product-grid');
+
+                    data.forEach(product => {
+                        const productItem = document.createElement('div');
+                        productItem.classList.add('col-sm-3', 'product-item'); // Thêm lớp col-sm-3 để chia thành 4 cột
+
+                        productItem.innerHTML = `
+                            <div class="product">
+                                <div class="product-image">
+                                     <img src="${product.image_url ? '/fontend/images/product/' + product.image_url : '/fontend/images/no-image.png'}" alt="${product.product_name}" />
+                                </div>
+                                <div class="product-info">
+                                    <h3>${product.product_name}</h3>
+                                    <p class="product-price">${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price)}</p>
+                                    
+                                </div>
+                                <a href="#" class="btn btn-primary">Xem Chi Tiết</a>
+                            </div>
+                        `;
+                        productGrid.appendChild(productItem);
+                    });
+                })
+                .catch(error => console.log('Lỗi khi tải sản phẩm:', error));
+        });
+    </script>
 </body>
 
 </html>

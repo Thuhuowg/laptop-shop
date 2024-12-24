@@ -6,7 +6,7 @@ use App\Http\Controllers\CartController;
 
 // Lấy danh sách giỏ hàng - cần xác thực người dùng
 Route::middleware('auth:api')->get('/cart', [CartController::class, 'getCart']);
-
+Route::get('/cart', [CartController::class, 'getCart']);
 // Thêm sản phẩm vào giỏ hàng
 Route::post('/cart', [CartController::class, 'store']);
 
