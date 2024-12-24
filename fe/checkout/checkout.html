@@ -14,15 +14,15 @@
         <form id="checkout-form">
             <div class="form-group">
                 <label for="name">Tên:</label>
-                <input type="text" id="name" class="form-control" required>
+                <input type="text" id="name" class="form-control" autocomplete="name" required>
             </div>
             <div class="form-group">
                 <label for="address">Địa Chỉ:</label>
-                <input type="text" id="address" class="form-control" required>
+                <input type="text" id="address" class="form-control" autocomplete="address" required>
             </div>
             <div class="form-group">
                 <label for="phone">Số Điện Thoại:</label>
-                <input type="text" id="phone" class="form-control" required>
+                <input type="text" id="phone" class="form-control" autocomplete="phone" required>
             </div>
             <div class="form-group">
                 <label for="payment-method">Phương Thức Thanh Toán:</label>
@@ -73,8 +73,6 @@
                         }
                     };
                     document.body.appendChild(script);
-
-                    
                 })
                 .catch(err => console.error("Error loading header.html:", err));
         });
@@ -85,6 +83,7 @@
             .then(data => {
                 document.getElementById('footer-container').innerHTML = data;
             });
+
         document.addEventListener("DOMContentLoaded", function () {
             // Lấy giỏ hàng từ localStorage và tính tổng số tiền
             const cart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -137,7 +136,9 @@
                 })
                     .then(response => response.json())
                     .then(data => {
+                        console.log('Response Data:', data);
                         if (data.code === '00') {
+                            console.log('VNPay URL:', data.data);
                             window.location.href = data.data; // Redirect đến VNPay URL
                         } else {
                             document.getElementById('message').textContent = 'Lỗi: ' + data.message;
