@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
+    // Hiển thị danh sách sản phẩm chưa bị xóa
     public function index()
     {
         // Lấy danh sách sản phẩm chưa xóa, kèm theo danh mục và giảm giá
@@ -14,41 +15,55 @@ class ProductController extends Controller
         return response()->json($products);
     }
 
+    // Hiển thị thông tin chi tiết của một sản phẩm
     public function show($id)
-{
-    // Tìm sản phẩm theo product_id (kiểu VARCHAR) và check is_deleted
-    $product = Product::with(['category', 'discount'])
-                      ->where('product_id', $id)  // Kiểm tra product_id
-                      ->where('is_deleted', 0)    // Kiểm tra sản phẩm chưa bị xóa
-                      ->first();
+    {
+        // Tìm sản phẩm theo product_id (kiểu VARCHAR) và kiểm tra xem sản phẩm chưa bị xóa
+        $product = Product::with(['category', 'discount'])
+                          ->where('product_id', $id)  // Kiểm tra product_id
+                          ->where('is_deleted', 0)    // Kiểm tra sản phẩm chưa bị xóa
+                          ->first();
 
-    // Nếu không tìm thấy sản phẩm
-    if (!$product) {
-        return response()->json(['message' => 'Product not found'], 404);
+        // Nếu không tìm thấy sản phẩm
+        if (!$product) {
+            return response()->json(['message' => 'Product not found'], 404);
+        }
+
+        // Trả về thông tin sản phẩm
+        return response()->json($product);
     }
 
-    // Trả về thông tin sản phẩm
-    return response()->json($product);
-}
-
-
+    // Thêm mới một sản phẩm
     public function store(Request $request)
-    {
+    {   
+        dd($request->all());
         // Xác nhận đầu vào của người dùng khi thêm sản phẩm mới
         $request->validate([
+            'product_id' => 'required|string|max:100|unique:products,product_id', // product_id cần duy nhất
             'product_name' => 'required|string|max:50',
             'price' => 'required|numeric|min:0',
             'category_id' => 'required|exists:categories,category_id',
             'discount_id' => 'nullable|exists:discounts,discount_id',
             'image_url' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
         ]);
 
         // Tạo mới sản phẩm
-        $product = Product::create($request->all());
+        $product = Product::create([
+            'product_id' => $request->input('product_id'),
+            'product_name' => $request->input('product_name'),
+            'description' => $request->input('description'),
+            'price' => $request->input('price'),
+            'category_id' => $request->input('category_id'),
+            'image_url' => $request->input('image_url'),
+            'discount_id' => $request->input('discount_id'),
+        ]);
+
         return response()->json($product, 201);
     }
 
-    public function update(Request $request, $id)
+    // Cập nhật thông tin sản phẩm
+    public function update(Request $request, string $id)
     {
         // Tìm sản phẩm theo product_id (kiểu VARCHAR)
         $product = Product::where('product_id', $id)->where('is_deleted', 0)->first();
@@ -63,14 +78,24 @@ class ProductController extends Controller
             'category_id' => 'sometimes|required|exists:categories,category_id',
             'discount_id' => 'nullable|exists:discounts,discount_id',
             'image_url' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
         ]);
 
         // Cập nhật thông tin sản phẩm
-        $product->update($request->all());
+        $product->update([
+            'product_name' => $request->input('product_name', $product->product_name),
+            'description' => $request->input('description', $product->description),
+            'price' => $request->input('price', $product->price),
+            'category_id' => $request->input('category_id', $product->category_id),
+            'discount_id' => $request->input('discount_id', $product->discount_id),
+            'image_url' => $request->input('image_url', $product->image_url),
+        ]);
+
         return response()->json($product);
     }
 
-    public function destroy($id)
+    // Xóa một sản phẩm (soft delete)
+    public function destroy( string $id)
     {
         // Tìm sản phẩm theo product_id (kiểu VARCHAR)
         $product = Product::where('product_id', $id)->where('is_deleted', 0)->first();

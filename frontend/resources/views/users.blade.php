@@ -61,7 +61,10 @@
     <div class="sidebar" id="sidebar">
         <h5 class="text-center mb-3">Menu</h5>
         <nav class="nav flex-column">
-            <a class="nav-link" href="#userList">User Management</a>
+            <a class="nav-link" href="/users">Quản lý người dùng</a>
+            <a class="nav-link" href="/product">Quản lý sản phẩm</a>
+            <a class="nav-link" href="/category">Quản lý danh mục</a>
+            <a class="nav-link" href="/discount">Quản lý giảm giá</a>
         </nav>
     </div>
 
@@ -69,7 +72,8 @@
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
             <button class="menu-btn" id="menuToggle">☰</button>
-            <a class="navbar-brand" href="#userList">User Management</a>
+            <a class="navbar-brand" href="/user">User Management</a>
+            
         </div>
     </nav>
 
@@ -79,6 +83,10 @@
         <!-- User List Section -->
         <section id="userList">
             <h1>Danh sách người dùng</h1>
+
+            <!-- Add User Button -->
+            <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addUserModal">Thêm Người Dùng</button>
+
             <table class="table table-bordered mt-3">
                 <thead>
                     <tr>
@@ -96,6 +104,44 @@
             </table>
         </section>
     </div>
+
+    <!-- Add User Modal -->
+    <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addUserModalLabel">Thêm Người Dùng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addUserForm">
+                        <div class="mb-3">
+                            <label for="addUsername" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="addUsername" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="addEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="addEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="addPassword" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="addPassword" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="addPhone" class="form-label">Phone</label>
+                            <input type="text" class="form-control" id="addPhone">
+                        </div>
+                        <div class="mb-3">
+                            <label for="addAddress" class="form-label">Address</label>
+                            <input type="text" class="form-control" id="addAddress">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Thêm</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Edit User Modal -->
     <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -118,7 +164,6 @@
                         <div class="mb-3">
                             <label for="editPassword" class="form-label">Password</label>
                             <input type="password" class="form-control" id="editPassword">
-
                         </div>
                         <div class="mb-3">
                             <label for="editPhone" class="form-label">Phone</label>
@@ -134,7 +179,6 @@
             </div>
         </div>
     </div>
-
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
@@ -181,7 +225,6 @@
         // Hàm để xóa người dùng
         function deleteUser(id) {
             if (confirm('Bạn có chắc chắn muốn xóa người dùng này?')) {
-                // Gửi yêu cầu DELETE đến API
                 fetch(`http://127.0.0.1:8001/api/users/${id}`, {
                     method: 'DELETE',
                     headers: {
@@ -195,7 +238,6 @@
                         return response.json();
                     })
                     .then(() => {
-                        // Xóa dòng người dùng khỏi bảng sau khi API xóa thành công
                         const userRow = document.getElementById(`user-${id}`);
                         if (userRow) {
                             userRow.remove();
@@ -219,7 +261,6 @@
 
         // Hàm hiển thị modal và điền thông tin người dùng cần sửa
         function editUser(id) {
-            // Gửi yêu cầu GET để lấy thông tin chi tiết người dùng từ API
             fetch(`http://127.0.0.1:8001/api/users/${id}`, {
                 method: 'GET',
             })
@@ -230,46 +271,37 @@
                     return response.json();
                 })
                 .then(user => {
-                    // Điền thông tin người dùng vào form
                     document.getElementById('editUserId').value = user.user_id;
                     document.getElementById('editUsername').value = user.username;
                     document.getElementById('editEmail').value = user.email;
                     document.getElementById('editPhone').value = user.phone_number || '';
                     document.getElementById('editAddress').value = user.address || '';
 
-                    // Hiển thị modal
                     const editUserModal = new bootstrap.Modal(document.getElementById('editUserModal'));
                     editUserModal.show();
                 })
                 .catch(error => {
                     console.error('Lỗi khi lấy thông tin người dùng:', error);
-                    alert('Không thể tải thông tin người dùng. Vui lòng thử lại!');
+                    alert('Không thể lấy thông tin người dùng!');
                 });
         }
 
-        // Xử lý khi form sửa được submit
-        document.getElementById('editUserForm').addEventListener('submit', function (event) {
-            event.preventDefault(); // Ngăn chặn reload trang
-
-            const userId = document.getElementById('editUserId').value;
-            const updatedData = {
+        // Hàm để cập nhật thông tin người dùng
+        document.getElementById('editUserForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const id = document.getElementById('editUserId').value;
+            const updatedUser = {
                 username: document.getElementById('editUsername').value,
                 email: document.getElementById('editEmail').value,
                 phone_number: document.getElementById('editPhone').value,
                 address: document.getElementById('editAddress').value,
             };
-            const password = document.getElementById('editPassword').value;
-            if (password.trim() !== '') {
-                updatedData.password = password; // Chỉ thêm password nếu nó không rỗng
-            }
-
-            // Gửi yêu cầu PUT để cập nhật thông tin người dùng
-            fetch(`http://127.0.0.1:8001/api/users/${userId}`, {
+            fetch(`http://127.0.0.1:8001/api/users/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(updatedData),
+                body: JSON.stringify(updatedUser),
             })
                 .then(response => {
                     if (!response.ok) {
@@ -278,28 +310,50 @@
                     return response.json();
                 })
                 .then(() => {
-                    // Cập nhật dữ liệu trên bảng mà không cần tải lại trang
-                    const userRow = document.getElementById(`user-${userId}`);
-                    userRow.innerHTML = `
-                    <td>${userId}</td>
-                    <td>${updatedData.username}</td>
-                    <td>${updatedData.email}</td>
-                    <td>${updatedData.phone_number || 'N/A'}</td>
-                    <td>${updatedData.address || 'N/A'}</td>
-                    <td>
-                        <button class="btn btn-warning btn-sm" onclick="editUser(${userId})">Edit</button>
-                        <button class="btn btn-danger btn-sm" onclick="deleteUser(${userId})">Delete</button>
-                    </td>
-                `;
-
-                    // Đóng modal và hiển thị thông báo
+                    alert('Thông tin người dùng đã được cập nhật!');
                     const editUserModal = bootstrap.Modal.getInstance(document.getElementById('editUserModal'));
                     editUserModal.hide();
-                    alert('Cập nhật người dùng thành công!');
+                    fetchFromAPI(); // Tải lại danh sách người dùng sau khi cập nhật
                 })
                 .catch(error => {
                     console.error('Lỗi khi cập nhật người dùng:', error);
-                    alert('Không thể cập nhật người dùng. Vui lòng thử lại!');
+                    alert('Không thể cập nhật thông tin người dùng!');
+                });
+        });
+
+        // Thêm người dùng mới
+        document.getElementById('addUserForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const newUser = {
+                username: document.getElementById('addUsername').value,
+                email: document.getElementById('addEmail').value,
+                password: document.getElementById('addPassword').value,
+                phone_number: document.getElementById('addPhone').value,
+                address: document.getElementById('addAddress').value,
+            };
+
+            fetch('http://127.0.0.1:8001/api/users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newUser),
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Thêm người dùng không thành công!');
+                    }
+                    return response.json();
+                })
+                .then(() => {
+                    alert('Người dùng đã được thêm thành công!');
+                    const addUserModal = bootstrap.Modal.getInstance(document.getElementById('addUserModal'));
+                    addUserModal.hide();
+                    fetchFromAPI(); // Tải lại danh sách người dùng
+                })
+                .catch(error => {
+                    console.error('Lỗi khi thêm người dùng:', error);
+                    alert('Không thể thêm người dùng!');
                 });
         });
     </script>
