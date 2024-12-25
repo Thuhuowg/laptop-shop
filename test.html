@@ -1,138 +1,71 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Order</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <title>Thanh Toán VNPay</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        input {
+            display: block;
+            margin: 10px 0;
+            padding: 10px;
+            width: 300px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .message {
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-
-    <h2>Create Order</h2>
-    
-    <!-- Form to create a new order -->
-    <form id="orderForm">
-        <div>
-            <label for="user_id">User ID:</label>
-            <input type="number" id="user_id" name="user_id" required>
-        </div>
+    <h2>Thông Tin Thanh Toán</h2>
+    <form id="payment-form">
+        <input type="number" name="amount" placeholder="Số tiền (VND)" required>
         
-        <div>
-            <label for="order_date">Order Date:</label>
-            <input type="date" id="order_date" name="order_date" required>
-        </div>
-        
-        <div>
-            <label for="status">Status:</label>
-            <input type="text" id="status" name="status" required>
-        </div>
-        
-        <div>
-            <label for="total_amount">Total Amount:</label>
-            <input type="number" id="total_amount" name="total_amount" required>
-        </div>
-        
-        <h3>Order Items</h3>
-        <div id="order_items">
-            <div class="order_item">
-                <div>
-                    <label for="product_name">Product Name:</label>
-                    <input type="text" name="product_name" required>
-                </div>
-                <div>
-                    <label for="quantity">Quantity:</label>
-                    <input type="number" name="quantity" required>
-                </div>
-                <div>
-                    <label for="price">Price:</label>
-                    <input type="number" name="price" required>
-                </div>
-            </div>
-        </div>
-        
-        <button type="button" id="addItemBtn">Add Item</button>
-        <button type="submit">Create Order</button>
+        <button type="submit">Thanh Toán</button>
     </form>
-
-    <div id="responseMessage"></div>
+    <div class="message" id="message"></div>
 
     <script>
-        // Handle form submission
-        document.getElementById("orderForm").addEventListener("submit", function(event) {
-            event.preventDefault(); // Prevent the default form submission
-
-            // Collect form data
-            const formData = new FormData(event.target);
-            const orderItems = [];
-
-            // Get order items
-            document.querySelectorAll('.order_item').forEach(function(item) {
-                const productName = item.querySelector('[name="product_name"]').value;
-                const quantity = item.querySelector('[name="quantity"]').value;
-                const price = item.querySelector('[name="price"]').value;
-
-                orderItems.push({
-                    product_name: productName,
-                    quantity: quantity,
-                    price: price
-                });
+        document.getElementById('payment-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const data = {};
+            formData.forEach((value, key) => {
+                data[key] = value;
             });
 
-            // Add order items and other form data to the payload
-            const orderData = {
-                user_id: formData.get('user_id'),
-                order_date: formData.get('order_date'),
-                status: formData.get('status'),
-                total_amount: formData.get('total_amount'),
-                order_items: orderItems
-            };
-
-            // Call the API to store the order
-            fetch('http://localhost:8000/api/orders/create', {
+            fetch('http://localhost:8003/api/payment', { // Đường dẫn đến API
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    // 'Authorization': 'Bearer <your-jwt-token>' // Nếu cần thiết, bạn có thể thêm token
                 },
-                body: JSON.stringify(orderData)
+                body: JSON.stringify(data),
             })
             .then(response => response.json())
             .then(data => {
-                document.getElementById("responseMessage").innerHTML = `
-                    <strong>Success!</strong><br>
-                    Order Created Successfully. Order ID: ${data.order_id}
-                `;
+                const messageDiv = document.getElementById('message');
+                if (data.code === '00') {
+                    // Chuyển hướng đến VNPay
+                    window.location.href = data.data;
+                } else {
+                    messageDiv.innerText = 'Lỗi: ' + data.message;
+                }
             })
-            .catch(error => {
-                document.getElementById("responseMessage").innerHTML = `
-                    <strong>Error!</strong><br>
-                    ${error.message}
-                `;
+            .catch(err => {
+                console.error('Lỗi:', err);
+                document.getElementById('message').innerText = 'Đã xảy ra lỗi. Vui lòng thử lại.';
             });
-        });
-
-        // Handle add item button click
-        document.getElementById("addItemBtn").addEventListener("click", function() {
-            const orderItemsDiv = document.getElementById("order_items");
-            const newItemDiv = document.createElement("div");
-            newItemDiv.classList.add("order_item");
-
-            newItemDiv.innerHTML = `
-                <div>
-                    <label for="product_name">Product Name:</label>
-                    <input type="text" name="product_name" required>
-                </div>
-                <div>
-                    <label for="quantity">Quantity:</label>
-                    <input type="number" name="quantity" required>
-                </div>
-                <div>
-                    <label for="price">Price:</label>
-                    <input type="number" name="price" required>
-                </div>
-            `;
-
-            orderItemsDiv.appendChild(newItemDiv);
         });
     </script>
 </body>

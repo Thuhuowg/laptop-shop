@@ -2,18 +2,19 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CartController;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
-|
-*/
+// Lấy danh sách giỏ hàng - cần xác thực người dùng
+Route::middleware('auth:api')->get('/cart', [CartController::class, 'getCart']);
+Route::get('/cart', [CartController::class, 'getCart']);
+// Thêm sản phẩm vào giỏ hàng
+Route::post('/cart', [CartController::class, 'store']);
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+// Cập nhật số lượng sản phẩm
+Route::put('/cart/{id}', [CartController::class, 'update']);
+
+// Xóa sản phẩm khỏi giỏ hàng
+Route::delete('/cart/{id}', [CartController::class, 'destroy']);
+
+// Xóa toàn bộ giỏ hàng
+Route::delete('/cart/clear', [CartController::class, 'clear']);

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết sản phẩm | Laptop-Shoppe</title>
+    <link href="/fe/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/fe/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/fe/css/prettyPhoto.css" rel="stylesheet">
+    <link href="/fe/css/price-range.css" rel="stylesheet">
+    <link href="/fe/css/animate.css" rel="stylesheet">
+    <link href="/fe/css/sweetalert.css" rel="stylesheet">
+    <link href="/fe/css/main.css" rel="stylesheet">
+    <link href="/fe/css/responsive.css" rel="stylesheet">
+</head>
+<body>
+    <div id="header-container"></div>
+
+    <section>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="product-details">
+                        <!-- Thông tin sản phẩm sẽ được thêm vào đây -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="footer-container"></div>
+
+    <script>
+        // Hàm tải Header và Footer
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch('/fe/header/header.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('header-container').innerHTML = data;
+
+                    // Load header.js explicitly after header.html is fetched
+                    const script = document.createElement('script');
+                    script.src = '/fe/header/header.js';
+                    script.onload = () => {
+                        if (typeof initializeHeader === 'function') {
+                            initializeHeader(); // Call the function after header.js is loaded
+                        } else {
+                            console.error("initializeHeader function not found in header.js");
+                        }
+                    };
+                    document.body.appendChild(script);
+                })
+                .catch(err => console.error("Error loading header.html:", err));
+        });
+
+        // Chèn Footer
+        fetch('/fe/footer.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('footer-container').innerHTML = data;
+            });
+
+        // Lấy product_id từ URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('product_id'); // Lấy ID sản phẩm từ URL
+
+        // Kiểm tra dữ liệu trong localStorage trước khi gọi API
+        const getProductDetailsFromLocalStorage = (productId) => {
+            const storedProduct = localStorage.getItem(`product_${productId}`);
+            return storedProduct ? JSON.parse(storedProduct) : null;
+        };
+
+        // Hàm tải chi tiết sản phẩm
+        const loadProductDetails = async () => {
+            if (!productId) {
+                alert('Không tìm thấy ID sản phẩm!');
+                return;
+            }
+
+            // Kiểm tra xem sản phẩm đã có trong localStorage chưa
+            const cachedProduct = getProductDetailsFromLocalStorage(productId);
+            if (cachedProduct) {
+                displayProductDetails(cachedProduct);
+            } else {
+                try {
+                    const response = await fetch(`http://127.0.0.1:8000/api/v1/products/${productId}`);
+                    if (!response.ok) {
+                        throw new Error('Sản phẩm không tìm thấy');
+                    }
+                    const product = await response.json();
+                    
+                    if (!product) {
+                        throw new Error('Dữ liệu sản phẩm bị thiếu');
+                    }
+
+                    // Lưu sản phẩm vào localStorage
+                    localStorage.setItem(`product_${productId}`, JSON.stringify(product));
+                    displayProductDetails(product);
+                } catch (error) {
+                    console.error('Lỗi khi tải thông tin sản phẩm:', error);
+                    alert('Không tìm thấy sản phẩm hoặc có lỗi trong việc tải thông tin');
+                }
+            }
+        };
+
+        // Hàm hiển thị thông tin sản phẩm
+        const displayProductDetails = (product) => {
+            const productDetails = document.querySelector('.product-details');
+            if (product.category && product.discount) {
+                productDetails.innerHTML = `
+                    <div class="col-sm-5">
+                        <div class="view-product">
+                            <img src="/fe/images/product/${product.image_url}" alt="${product.product_name}" />
+                        </div>
+                    </div>
+                    <div class="col-sm-7">
+                        <div class="product-information">
+                            <h1>Chi Tiết Sản Phẩm</h1>
+                            <h2>${product.product_name}</h2>
+                            <p><Strong>Mã sản phẩm</Strong>: ${product.product_id}</p>
+                            <p><Strong>Mô tả sản phẩm</Strong>: ${product.description}</p>
+                            <span>
+                                <span>${new Intl.NumberFormat('vi-VN').format(product.price)} VNĐ</span>
+                                <label>Số lượng:</label>
+                                <input class="cart_product_qty_${product.product_id}" name="qty" type="number" min="1" value="1" />
+                                <button type="button" class="btn btn-fefault cart add-to-cart">
+                                    <i class="fa fa-shopping-cart"></i> Thêm vào giỏ hàng
+                                </button>
+                            </span>
+                            <p><b>Tình trạng:</b> ${product.is_deleted === 0 ? 'Còn hàng' : 'Hết hàng'}</p>
+                            <p><b>Danh mục:</b> ${product.category ? product.category.category_name : 'Không có'}</p>
+                            <p><b>Giảm giá:</b> ${product.discount ? product.discount.discount_percent + '% giảm' : 'Không có'}</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                console.error('Dữ liệu Danh mục hoặc Giảm giá bị thiếu');
+            }
+        };
+
+        // Hàm thêm sản phẩm vào giỏ hàng
+        const addToCart = (product) => {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            
+            // Kiểm tra nếu sản phẩm đã có trong giỏ hàng
+            const existingProductIndex = cart.findIndex(item => item.product_id === product.product_id);
+            if (existingProductIndex !== -1) {
+                cart[existingProductIndex].quantity += product.quantity;
+            } else {
+                cart.push(product);
+            }
+
+            // Lưu giỏ hàng vào localStorage
+            localStorage.setItem('cart', JSON.stringify(cart));
+            alert('Sản phẩm đã được thêm vào giỏ hàng!');
+        };
+
+        // Gọi các hàm để tải header, footer và chi tiết sản phẩm
+        loadProductDetails();
+
+        // Xử lý sự kiện "Thêm vào giỏ hàng"
+        document.querySelector(".add-to-cart").addEventListener("click", () => {
+            const productName = document.querySelector(".product-information h2").innerText;
+            const price = parseFloat(document.querySelector(".product-information span").innerText.replace(/[^\d]/g, ""));
+            const imageUrl = document.querySelector(".view-product img").src;
+            const quantity = parseInt(document.querySelector(`.cart_product_qty_${productId}`).value);
+
+            const product = {
+                product_id: productId,
+                product_name: productName,
+                price: price,
+                image_url: imageUrl,
+                quantity: quantity
+            };
+
+            addToCart(product);
+        });
+    </script>
+</body>
+</html>

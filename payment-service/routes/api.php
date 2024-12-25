@@ -1,19 +1,10 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\TestController;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
-|
-*/
-
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+Route::post('/payments', [PaymentController::class, 'store']); // Lưu thanh toán mới
+Route::post('/payments/checkout', [PaymentController::class, 'online_checkout']); // Xử lý thanh toán online
+Route::post('/payment', [TestController::class, 'payment']);
+Route::get('/return', [TestController::class, 'return']);

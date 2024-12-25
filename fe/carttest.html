@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giỏ Hàng | Laptop-Shoppe</title>
+    <link href="/fe/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/fe/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/fe/css/prettyPhoto.css" rel="stylesheet">
+    <link href="/fe/css/price-range.css" rel="stylesheet">
+    <link href="/fe/css/animate.css" rel="stylesheet">
+    <link href="/fe/css/sweetalert.css" rel="stylesheet">
+    <link href="/fe/css/main.css" rel="stylesheet">
+    <link href="/fe/css/responsive.css" rel="stylesheet">
+</head>
+<body>
+    <div id="header-container"></div>
+
+    <div class="container">
+        <h2 class="title text-center">Giỏ Hàng Của Bạn</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Hình Ảnh</th>
+                    <th>Tên Sản Phẩm</th>
+                    <th>Đơn Giá</th>
+                    <th>Số Lượng</th>
+                    <th>Thành Tiền</th>
+                    
+                </tr>
+            </thead>
+            <tbody id="cart-items">
+                <!-- Sản phẩm sẽ được hiển thị ở đây -->
+            </tbody>
+        </table>
+        <div class="text-right">
+            <h3 id="cart-total">Tổng: 0 VNĐ</h3>
+            <a href="/fe/checkout/checkout.html">
+            <button  class="btn btn-primary" id="checkout-button">Thanh Toán</button>
+        </a>
+        </div>
+    </div>
+
+    <div id="footer-container"></div>
+
+    <script>
+        const API_URL = 'http://127.0.0.1:8004/api/cart'; // Thay bằng URL API của bạn
+    
+        // Hàm call API lấy giỏ hàng
+        const fetchCart = async () => {
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) {
+                    throw new Error('Lỗi khi lấy giỏ hàng');
+                }
+                const data = await response.json();
+                renderCart(data);
+            } catch (error) {
+                console.error('Lỗi:', error);
+                alert('Không thể lấy dữ liệu giỏ hàng. Vui lòng thử lại sau.');
+            }
+        };
+    
+        // Hàm render giỏ hàng
+        const renderCart = (cart) => {
+            const cartItems = document.getElementById('cart-items');
+            cartItems.innerHTML = ''; // Xóa nội dung cũ
+    
+            let total = 0;
+            cart.forEach((item) => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+    
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><img src="/fe/images/product/${item.image}" alt="${item.name}" width="50"></td>
+                    <td>${item.name}</td>
+                    <td>${new Intl.NumberFormat('vi-VN').format(item.price)} VNĐ</td>
+                    <td>
+                        <input type="number" min="1" value="${item.quantity}" data-id="${item.id}" class="quantity-input">
+                    </td>
+                    <td>${new Intl.NumberFormat('vi-VN').format(itemTotal)} VNĐ</td>
+                    <td>
+                        <button class="btn btn-danger btn-sm remove-item" data-id="${item.id}">Xóa</button>
+                    </td>
+                `;
+                cartItems.appendChild(row);
+            });
+    
+            document.getElementById('cart-total').textContent = `Tổng: ${new Intl.NumberFormat('vi-VN').format(total)} VNĐ`;
+        };
+    
+        // Hàm cập nhật số lượng
+        const updateQuantity = async (id, quantity) => {
+            try {
+                const response = await fetch(`${API_URL}/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ quantity })
+                });
+    
+                if (!response.ok) {
+                    throw new Error('Lỗi khi cập nhật số lượng');
+                }
+    
+                fetchCart(); // Lấy lại giỏ hàng sau khi cập nhật
+            } catch (error) {
+                console.error('Lỗi:', error);
+                alert('Không thể cập nhật số lượng. Vui lòng thử lại sau.');
+            }
+        };
+    
+        // Hàm xóa sản phẩm khỏi giỏ hàng
+        const removeItem = async (id) => {
+            try {
+                const response = await fetch(`${API_URL}/${id}`, {
+                    method: 'DELETE'
+                });
+    
+                if (!response.ok) {
+                    throw new Error('Lỗi khi xóa sản phẩm');
+                }
+    
+                fetchCart(); // Lấy lại giỏ hàng sau khi xóa
+            } catch (error) {
+                console.error('Lỗi:', error);
+                alert('Không thể xóa sản phẩm. Vui lòng thử lại sau.');
+            }
+        };
+    
+        // Lắng nghe sự kiện thay đổi số lượng
+        document.addEventListener('input', (event) => {
+            if (event.target && event.target.classList.contains('quantity-input')) {
+                const id = event.target.getAttribute('data-id');
+                const quantity = parseInt(event.target.value);
+                if (quantity > 0) {
+                    updateQuantity(id, quantity);
+                } else {
+                    alert('Số lượng phải lớn hơn 0!');
+                }
+            }
+        });
+    
+        // Lắng nghe sự kiện xóa sản phẩm
+        document.addEventListener('click', (event) => {
+            if (event.target && event.target.classList.contains('remove-item')) {
+                const id = event.target.getAttribute('data-id');
+                removeItem(id);
+            }
+        });
+    
+        // Hiển thị giỏ hàng khi tải trang
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchCart();
+        });
+    </script>
+    
+</body>
+</html>

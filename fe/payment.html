@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home | Laptop-Shoppe</title>
+    <link href="/fe/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/fe/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/fe/css/prettyPhoto.css" rel="stylesheet">
+    <link href="/fe/css/price-range.css" rel="stylesheet">
+    <link href="/fe/css/animate.css" rel="stylesheet">
+    <link href="/fe/css/sweetalert.css" rel="stylesheet">
+    <link href="/fe/css/main.css" rel="stylesheet">
+    <link href="/fe/css/responsive.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Chèn Header -->
+    <div id="header-container"></div>
+
+    <div class="container mt-5">
+        <h1>Tạo Thanh Toán Mới</h1>
+        <form id="payment-form">
+            <div class="form-group">
+                <label for="order_id">Mã đơn hàng</label>
+                <input type="text" name="order_id" id="order_id" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label for="payment_method">Phương thức thanh toán</label>
+                <select name="payment_method" id="payment_method" class="form-control" required>
+                    <option value="">Chọn phương thức thanh toán</option>
+                    <option value="VNPay">VNPay</option>
+                    <option value="QRCode">QR Code</option>
+                    <option value="COD">COD (Thanh toán khi nhận hàng)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="payment_status">Trạng thái thanh toán</label>
+                <select name="payment_status" id="payment_status" class="form-control" required>
+                    <option value="">Chọn trạng thái thanh toán</option>
+                    <option value="pending">Chờ xử lý</option>
+                    <option value="success">Thành công</option>
+                    <option value="failed">Thất bại</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="amount">Tổng tiền</label>
+                <input type="number" name="amount" id="amount" class="form-control" required>
+            </div>
+
+            <button type="button" class="btn btn-success" id="submit-button">Tạo Thanh Toán</button>
+        </form>
+    </div>
+
+    <!-- Chèn Footer -->
+    <div id="footer-container"></div>
+
+    <script>
+        // Chèn Header
+        fetch('header.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('header-container').innerHTML = data;
+            });
+
+        // Chèn Footer
+        fetch('footer.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('footer-container').innerHTML = data;
+            });
+            
+        // Xử lý khi nhấn nút tạo thanh toán
+        document.getElementById('submit-button').addEventListener('click', function () {
+            const data = {
+                order_id: document.getElementById('order_id').value,
+                payment_method: document.getElementById('payment_method').value,
+                payment_status: document.getElementById('payment_status').value,
+                amount: document.getElementById('amount').value
+            };
+            fetch('http://127.0.0.1:8002/api/payments/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Thanh toán đã được tạo thành công!');
+                } else {
+                    alert('Có lỗi xảy ra: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Không thể kết nối đến API.');
+            });
+            // Gửi dữ liệu đến backend
+            
+        });
+    </script>
+</body>
+</html>

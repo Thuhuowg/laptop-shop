@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThankYou | Laptop-Shoppe</title>
+    <link href="/fe/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/fe/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/fe/css/prettyPhoto.css" rel="stylesheet">
+    <link href="/fe/css/price-range.css" rel="stylesheet">
+    <link href="/fe/css/animate.css" rel="stylesheet">
+    <link href="/fe/css/sweetalert.css" rel="stylesheet">
+    <link href="/fe/css/main.css" rel="stylesheet">
+    <link href="/fe/css/responsive.css" rel="stylesheet">
+</head>
+<body>
+    <div id="header-container"></div>
+    <div class="thank-you-container">
+        <h1>Cảm ơn bạn đã mua hàng!</h1>
+        <p>Đơn hàng của bạn sẽ được xử lý nhanh chóng.</p>
+        <p>Chúng tôi hy vọng bạn có trả nghiệm tuyệt vời.</p>
+        <a href="/fe/home/home.html" class="button">Return to Home</a>
+    </div>
+    <div id="footer-container"></div>
+</body>
+<script>
+    
+fetch('/fe/header/header.html')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Failed to load header.html: ${response.statusText}`);
+        }
+        return response.text();
+    })
+    .then(data => {
+        document.getElementById('header-container').innerHTML = data;
+
+        // Kiểm tra tải header.js
+        const script = document.createElement('script');
+        script.src = '/fe/header/header.js';
+        script.onload = () => {
+            if (typeof initializeHeader === 'function') {
+                initializeHeader();
+            } else {
+                console.error("initializeHeader function is not defined in header.js");
+            }
+        };
+        script.onerror = () => {
+            console.error("Failed to load header.js");
+        };
+        document.body.appendChild(script);
+    })
+    .catch(err => console.error("Error loading header.html:", err));
+
+        // Chèn Footer
+        fetch('/fe/footer.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('footer-container').innerHTML = data;
+            });
+            document.addEventListener("DOMContentLoaded", function () {
+    // Xóa cart nhưng giữ thông tin người dùng
+    localStorage.removeItem("cart");
+
+    // Gọi lại updateAuthLink để cập nhật giao diện
+    initializeHeader();
+});
+</script>
+</html>
