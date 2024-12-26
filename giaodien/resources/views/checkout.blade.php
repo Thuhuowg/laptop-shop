@@ -3,7 +3,6 @@
 @section('title', 'Checkout | Laptop-Shoppe')  <!-- Tiêu đề trang -->
 
 @section('content')
-<div id="header-container"></div>
 <div class="container">
     <h2 class="title text-center">Thông Tin Thanh Toán</h2>
     <form id="checkout-form">
@@ -38,7 +37,7 @@
             <input type="number" id="amount" name="amount" class="form-control" placeholder="Số tiền (VND)" required>
         </div>
         <button type="button" id="vnpay-btn" class="btn btn-secondary btn-sm" style="display:none;">
-            <img src="/fe/images/vnpay-logo.png" alt="VNPay" style="width: 20px; height: auto; margin-right: 5px;">
+            <img src="/fontend/images/vnpay-logo.png" alt="VNPay" style="width: 20px; height: auto; margin-right: 5px;">
             Thanh toán VNPay
         </button>
         <button type="button" id="cod-btn" class="btn btn-secondary btn-sm" style="display:none;">
@@ -48,5 +47,4 @@
     </form>
 </div>
 
-<div id="footer-container"></div>
 @endsection

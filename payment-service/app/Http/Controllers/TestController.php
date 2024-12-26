@@ -10,7 +10,7 @@ class TestController extends Controller
     {
         // Thông tin cấu hình VNPay
         $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-        $vnp_Returnurl = "http://localhost:5501/fe/thankyou.html"; // Địa chỉ trả về sau khi thanh toán
+        $vnp_Returnurl = "http://localhost:8002/thankyou"; // Địa chỉ trả về sau khi thanh toán
         $vnp_TmnCode = "LNYT5TSP"; // Mã website tại VNPAY 
         $vnp_HashSecret = "ZBUPSXKHMI3CUXLWM7Y7GKYW8PP8A4SN"; // Chuỗi bí mật
         

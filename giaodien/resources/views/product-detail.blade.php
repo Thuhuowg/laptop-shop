@@ -14,5 +14,8 @@
             </div>
         </div>
     </section>
+    <script src="/fontend/js/pddetail.js"></script>
+    
+
 @endsection
 

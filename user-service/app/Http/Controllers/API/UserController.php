@@ -28,41 +28,41 @@ class UserController extends Controller
         return response()->json($user);
     }
 
-    // // Create a new user (API)
-    // public function store(Request $request)
-    // {
-    //     // Validate incoming request data
-    //     $validator = Validator::make($request->all(), [
-    //         'username' => 'required|unique:user_pj|max:255',
-    //         'password' => 'required|min:6',
-    //         'email' => 'required|email|unique:user_pj,email',
-    //         'phone_number' => 'nullable|digits_between:10,15',
-    //         'address' => 'nullable|max:255',
-    //     ]);
+    // Create a new user (API)
+    public function store(Request $request)
+    {
+        // Validate incoming request data
+        $validator = Validator::make($request->all(), [
+            'username' => 'required|unique:user_pj|max:255',
+            'password' => 'required|min:6',
+            'email' => 'required|email|unique:user_pj,email',
+            'phone_number' => 'nullable|digits_between:10,15',
+            'address' => 'nullable|max:255',
+        ]);
 
-    //     if ($validator->fails()) {
-    //         return response()->json($validator->errors(), 422);
-    //     }
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
 
-    //     try {
-    //         // Create a new user
-    //         $user = User::create([
-    //             'username' => $request->username,
-    //             'password' => bcrypt($request->password), // Hash the password before saving
-    //             'email' => $request->email,
-    //             'phone_number' => $request->phone_number,
-    //             'address' => $request->address,
-    //             'role_id' => $request->role_id ?? 1, // Default role if not provided
-    //         ]);
+        try {
+            // Create a new user
+            $user = User::create([
+                'username' => $request->username,
+                'password' => bcrypt($request->password), // Hash the password before saving
+                'email' => $request->email,
+                'phone_number' => $request->phone_number,
+                'address' => $request->address,
+                'role_id' => $request->role_id ?? 1, // Default role if not provided
+            ]);
 
-    //         return response()->json([
-    //             'message' => 'User created successfully',
-    //             'user' => $user,
-    //         ], 201);
-    //     } catch (\Exception $e) {
-    //         return response()->json(['error' => 'Unable to create user: ' . $e->getMessage()], 500);
-    //     }
-    // }
+            return response()->json([
+                'message' => 'User created successfully',
+                'user' => $user,
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Unable to create user: ' . $e->getMessage()], 500);
+        }
+    }
 
     // Update an existing user (API)
     public function update(Request $request, $id)
