@@ -83,7 +83,7 @@
                                 <ul class="nav nav-pills nav-stacked">
                                     <li><a href="/fe/msi.html" data-brand="MSI">MSI</a></li>
                                     <li><a href="/fe/hp.html" data-brand="HP">HP</a></li>
-                                    <li><a href="#" data-brand="Dell">Dell</a></li>
+                                    <li><a href="/fe/dell.html" data-brand="Dell">Dell</a></li>
                                     <li><a href="/fe/lenovo.html" data-brand="Lenovo">Lenovo</a></li>
                                 </ul>
                             </div>
@@ -180,6 +180,42 @@
         };
 
         loadProducts(); // Khởi động việc tải sản phẩm
+        const addToCart = (product) => {
+    let cart = JSON.parse(localStorage.getItem('cart'));
+    const existingProductIndex = cart.findIndex(item => item.id === product.id);
+
+    if (existingProductIndex !== -1) {
+        // Nếu sản phẩm đã tồn tại trong giỏ hàng, tăng số lượng
+        cart[existingProductIndex].quantity += product.quantity;
+    } else {
+        // Nếu sản phẩm chưa có trong giỏ hàng, thêm vào
+        cart.push(product);
+    }
+
+    localStorage.setItem('cart', JSON.stringify(cart));
+    alert(`Đã thêm "${product.name}" vào giỏ hàng!`);
+};
+// Lọc sản phẩm theo thương hiệu
+
+// Bắt sự kiện khi click vào nút "Thêm giỏ hàng"
+document.addEventListener('click', (event) => {
+    if (event.target && event.target.classList.contains('add-to-cart')) {
+        const button = event.target;
+        const productId = button.getAttribute('data-id_product');
+        
+        // Lấy thông tin sản phẩm từ các input hidden
+        const product = {
+            id: productId,
+            name: document.querySelector(`.cart_product_name_${productId}`).value,
+            image: document.querySelector(`.cart_product_image_${productId}`).value,
+            price: parseFloat(document.querySelector(`.cart_product_price_${productId}`).value),
+            quantity: parseInt(document.querySelector(`.cart_product_qty_${productId}`).value),
+        };
+
+        // Thêm sản phẩm vào giỏ hàng
+        addToCart(product);
+    }
+});
     </script>
 
 </body>

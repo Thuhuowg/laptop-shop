@@ -246,7 +246,7 @@ updateCartCount();
                     localStorage.setItem('username', userData.username);
 
                     // Chuyển hướng dựa trên vai trò
-                    const redirectUrl = data.user.role_id === 1 ? '/home' : '/users';
+                    const redirectUrl = data.user.role_id === 2 ? '/home' : '/users';
                     window.location.href = redirectUrl;
                 } else {
                     errorMessage.textContent = 'Phản hồi từ server không hợp lệ!';

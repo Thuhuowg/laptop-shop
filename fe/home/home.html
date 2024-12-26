@@ -164,13 +164,8 @@
         const loadProducts = () => {
         const storedProducts = localStorage.getItem('products');
         if (storedProducts) {
-            fetch('http://127.0.0.1:8000/api/v1/products')
-                .then(response => response.json())
-                .then(data => {
-                    localStorage.setItem('products', JSON.stringify(data)); // Lưu vào localStorage
-                    renderProducts(data); // Hiển thị sản phẩm
-                })
-                .catch(error => console.log('Lỗi khi tải sản phẩm:', error));
+            const products = JSON.parse(storedProducts);
+            renderProducts(products);
         } else {
             // Nếu không có, gọi API và lưu vào localStorage
             fetch('http://127.0.0.1:8000/api/v1/products')

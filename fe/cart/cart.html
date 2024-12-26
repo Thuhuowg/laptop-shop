@@ -35,8 +35,8 @@
         </table>
         <div class="text-right">
             <h3 id="cart-total">Tổng: 0 VNĐ</h3>
-            <a href="http://127.0.0.1:5501/fe/checkout/checkout.html">
-            <button  class="btn btn-primary" id="checkout-button">Thanh Toán</button>
+            <!-- <a href="../checkout/checkout.html"> -->
+            <button class="btn btn-primary" id="checkout-button">Thanh Toán</button>
         </a>
         </div>
     </div>
@@ -119,9 +119,9 @@
         });
 
         
-        // document.getElementById('checkout-button').addEventListener('click', () => {
-        //     window.location.href = '/fe/checkout/checkout.html';
-        // });
+        document.getElementById('checkout-button').addEventListener('click', () => {
+            window.location.href = '../checkout/checkout.html';
+        });
 
         // Chèn Header và Footer
         document.addEventListener("DOMContentLoaded", function () {

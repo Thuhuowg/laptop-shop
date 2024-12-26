@@ -11,7 +11,7 @@
 
     <div class="container">
         <h2 class="title text-center">Thông Tin Thanh Toán</h2>
-        <form id="checkout-form" onsubmit="return false;">
+        <form id="checkout-form" >
             <div class="form-group">
                 <label for="name">Tên:</label>
                 <input type="text" id="name" class="form-control" autocomplete="name" required>
@@ -57,6 +57,7 @@
 
     <script>
         
+        document.addEventListener("DOMContentLoaded", function () {
             // Load Header
             fetch('../header/header.html')
                 .then(response => response.text())
@@ -73,7 +74,7 @@
                     document.body.appendChild(script);
                 })
                 .catch(err => console.error("Error loading header.html:", err));
-
+            });
             // Load Footer
             fetch('/fe/footer.html')
                 .then(response => response.text())
@@ -106,8 +107,9 @@
                     codBtn.style.display = 'none';
                 }
             });
-
+            
             vnpayBtn.addEventListener('click', function () {
+                event.preventDefault();
                 handleVNPayPayment();
             });
 
@@ -116,6 +118,7 @@
             });
 
             function handleVNPayPayment() {
+                console.log('Hàm thanh toán VNPay được gọi'); // Debug
                 const amount = document.getElementById('amount').value;
 
                 if (!amount || amount <= 0) {
@@ -130,13 +133,17 @@
                 })
                 .then(response => response.json())
                 .then(data => {
+                    console.log('Dữ liệu phản hồi:', data); // Debug
                     if (data.code === '00') {
-                        window.location.href = data.data; // Chuyển hướng đến URL VNPay
+                        console.log('Chuyển hướng đến:', data.data);
+                        window.location.assign(data.data);
+                        
                     } else {
                         document.getElementById('message').textContent = 'Lỗi: ' + data.message;
                     }
                 })
                 .catch(err => {
+                    console.error('Lỗi:', err); // Debug
                     document.getElementById('message').textContent = 'Đã xảy ra lỗi, vui lòng thử lại.';
                 });
             }
@@ -148,3 +155,4 @@
     </script>
 </body>
 </html>
+
