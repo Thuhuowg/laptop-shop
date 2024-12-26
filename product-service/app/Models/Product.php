@@ -8,7 +8,7 @@ class Product extends Model
 {
     protected $table = 'products';  // Tên bảng trong cơ sở dữ liệu
     protected $primaryKey = 'product_id';  // Khóa chính của bảng
-    public $timestamps = false;  
+    public $timestamps = false;
     protected $fillable = ['product_name', 'description', 'price', 'category_id', 'image_url', 'discount_id', 'is_deleted'];
     protected $keyType = 'string'; 
     public function category()
