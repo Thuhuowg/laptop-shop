@@ -167,7 +167,7 @@
                 localStorage.setItem('role_id', data.user.role_id); // Sửa thành role_id
 
                 // Chuyển hướng dựa trên vai trò
-                const redirectUrl = data.user.role_id === 2 ? '/product' : '/home';
+                const redirectUrl = data.user.role_id === 2 ? '/adusers' : '/home';
                 window.location.href = redirectUrl;
             } else {
                 errorMessage.textContent = 'Phản hồi từ server không hợp lệ!';

@@ -13,10 +13,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
 
+Route::get('/users', function () {
+    return view('users');
+});
 Route::get('/login', function () {
     return view('login');
 })->name('login');
@@ -35,20 +35,33 @@ Route::get('/checkout', function () {
 Route::get('/thankyou', function () {
     return view('thankyou');
 });
+Route::get('/transaction_history', function () {
+    return view('transaction_history');
+});
+Route::get('/inforuser', function () {
+    return view('inforuser');
+});
 Route::get('/product-detail', function () {
     return view('product-detail');
 })->name('product-detail');
-
-//admin-page
 Route::get('/product', function () {
-    return view('layout_admin.product');
+    return view('product');
 });
 Route::get('/category', function () {
-    return view('layout_admin.category');
+    return view('category');
 });
 Route::get('/discount', function () {
-    return view('layout_admin.discount');
+    return view('discount');
 });
-Route::get('/users', function () {
-    return view('layout_admin.users');
+Route::get('/adproduct', function () {
+    return view('admin.product');
+});
+Route::get('/adcategory', function () {
+    return view('admin.category');
+});
+Route::get('/addiscount', function () {
+    return view('admin.discount');
+});
+Route::get('/adusers', function () {
+    return view('admin.users');
 });
