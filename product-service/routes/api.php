@@ -46,3 +46,5 @@ Route::prefix('v1')->group(function () {
     Route::get('/filter-products', [ProductController::class, 'filterProducts']);
 });
 
+Route::get('/products/filter', [ProductController::class, 'filterProducts']);          
+
