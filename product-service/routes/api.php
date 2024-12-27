@@ -44,3 +44,5 @@ Route::prefix('v1')->group(function () {
     Route::delete('products/{id}', [ProductController::class, 'destroy']);
 });
 
+Route::get('/products/filter', [ProductController::class, 'filterProducts']);          
+

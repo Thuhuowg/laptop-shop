@@ -56,10 +56,10 @@
                                     </a>
                                 </li>
                                 <li>
-                                <a href="/cart" id="cart-icon">
-                                <i class="fa fa-shopping-cart"></i> Giỏ hàng
-                                <span class="cart-count badge">0</span>
-                            </a>
+                                    <a href="/cart" id="cart-icon">
+                                        <i class="fa fa-shopping-cart"></i> Giỏ hàng
+                                        <span class="cart-count badge">0</span>
+                                    </a>
                                 </li>
                                 <!-- Icon Người dùng -->
                                 <li>
@@ -133,64 +133,192 @@
     <script src="/fontend/js/cart.js"></script>
     <script src="/fontend/js/checkout.js"></script>
     <script>
-    function initializeHeader() {
-        // Function to delete a cookie by name
-        function deleteCookie(name) {
-            document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-        }
-
-        // Function to get the token from cookies
-        function getToken() {
-            const cookieString = document.cookie.split('; ').find(row => row.startsWith('token='));
-            return cookieString ? cookieString.split('=')[1] : null;
-        }
-
-        // Function to handle logout
-        function handleLogout() {
-            deleteCookie('token');
-            localStorage.removeItem('user_id');
-            localStorage.removeItem('username'); // Xóa tên người dùng
-            updateAuthLink(); // Cập nhật lại liên kết đăng nhập/đăng xuất
-            window.location.href = '/'; // Chuyển hướng về trang chủ sau khi đăng xuất
-        }
-
-        // Function to update the auth link based on token presence
-        function updateAuthLink() {
-            const authLink = document.getElementById('auth-link');
-            if (!authLink) {
-                console.error("Element with ID 'auth-link' not found in DOM.");
-                return;
+        function initializeHeader() {
+            // Function to delete a cookie by name
+            function deleteCookie(name) {
+                document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
             }
 
-            const token = getToken();
-            if (token) {
-                authLink.textContent = 'Đăng xuất';
-                authLink.href = '#'; // Không dẫn đến trang mới
-                authLink.onclick = handleLogout; // Gọi hàm logout khi nhấn
-            } else {
-                authLink.textContent = 'Đăng nhập';
-                authLink.href = '/login'; // Đường dẫn đến trang đăng nhập
-                authLink.onclick = null; // Không có sự kiện click
+            // Function to get the token from cookies
+            function getToken() {
+                const cookieString = document.cookie.split('; ').find(row => row.startsWith('token='));
+                return cookieString ? cookieString.split('=')[1] : null;
             }
+
+            // Function to handle logout
+            function handleLogout() {
+                deleteCookie('token');
+                localStorage.removeItem('user_id');
+                localStorage.removeItem('username'); // Xóa tên người dùng
+                updateAuthLink(); // Cập nhật lại liên kết đăng nhập/đăng xuất
+                window.location.href = '/'; // Chuyển hướng về trang chủ sau khi đăng xuất
+            }
+
+            // Function to update the auth link based on token presence
+            function updateAuthLink() {
+                const authLink = document.getElementById('auth-link');
+                if (!authLink) {
+                    console.error("Element with ID 'auth-link' not found in DOM.");
+                    return;
+                }
+
+                const token = getToken();
+                if (token) {
+                    authLink.textContent = 'Đăng xuất';
+                    authLink.href = '#'; // Không dẫn đến trang mới
+                    authLink.onclick = handleLogout; // Gọi hàm logout khi nhấn
+                } else {
+                    authLink.textContent = 'Đăng nhập';
+                    authLink.href = '/login'; // Đường dẫn đến trang đăng nhập
+                    authLink.onclick = null; // Không có sự kiện click
+                }
+            }
+
+            // Call the function to update the link
+            updateAuthLink();
         }
 
-        // Call the function to update the link
-        updateAuthLink();
-    }
+        // Ensure the function runs after header.html is loaded into the DOM
+        document.addEventListener('DOMContentLoaded', initializeHeader);
 
-    // Ensure the function runs after header.html is loaded into the DOM
-    document.addEventListener('DOMContentLoaded', initializeHeader);
-    
-    const updateCartCount = () => {
-        const cart = JSON.parse(localStorage.getItem("cart")) || [];
-        const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
-        document.querySelector(".cart-count").innerText = totalItems;
-    };
+        const updateCartCount = () => {
+            const cart = JSON.parse(localStorage.getItem("cart")) || [];
+            const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+            document.querySelector(".cart-count").innerText = totalItems;
+        };
 
-    // Cập nhật ngay khi tải trang
-    updateCartCount();
-</script>
-    
+        // Cập nhật ngay khi tải trang
+        updateCartCount();
+    </script>
+    <!-- <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const categoryLinks = document.querySelectorAll('.filter-category');
+            const productsList = document.getElementById('products-list');
+
+            categoryLinks.forEach(link => {
+                link.addEventListener('click', function (event) {
+                    event.preventDefault();
+
+                    // Lấy category_id từ thuộc tính data-id
+                    const categoryId = this.getAttribute('data-id');
+
+                    // Gọi API lọc sản phẩm theo category_id
+                    fetch(`http://127.0.0.1:8000/api/products?category_id=${categoryId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'success') {
+                                // Xóa danh sách sản phẩm cũ
+                                productsList.innerHTML = '';
+
+                                // Hiển thị danh sách sản phẩm mới
+                                if (data.data.length > 0) {
+                                    data.data.forEach(product => {
+                                        const productHTML = `
+                                    <div class="col-sm-4">
+                                        <div class="product-image-wrapper">
+                                            <div class="single-products">
+                                                <div class="productinfo text-center">
+                                                    <a href="/product-detail?id=${product.product_id}">
+                                                        <img src="${product.image_url ? '/fontend/images/product/' + product.image_url : '/fontend/images/no-image.png'}" alt="${product.product_name}" />
+                                                        <h2>${new Intl.NumberFormat('vi-VN').format(product.price)} VNĐ</h2>
+                                                        <p>${product.product_name}</p>
+                                                    </a>
+                                                    <button type="button" class="btn btn-default add-to-cart" data-id_product="${product.product_id}" name="add-to-cart">
+                                                        <i class="fa fa-shopping-cart"></i> Thêm vào giỏ hàng
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                                        productsList.innerHTML += productHTML;
+                                    });
+                                } else {
+                                    productsList.innerHTML = '<p>Không có sản phẩm nào thuộc danh mục này.</p>';
+                                }
+                            } else {
+                                alert(data.message || 'Có lỗi xảy ra khi tải sản phẩm.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Không thể tải sản phẩm.');
+                        });
+                });
+            });
+        });
+    </script> -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const productsList = document.getElementById('products-list');
+            const applyFiltersButton = document.getElementById('apply-filters');
+
+            // Hàm gọi API lọc sản phẩm
+            function filterProducts() {
+                // Lấy danh sách category_id đã chọn
+                const selectedCategories = Array.from(document.querySelectorAll('.filter-category-checkbox:checked'))
+                    .map(checkbox => checkbox.value);
+
+                // Lấy danh sách price_range đã chọn
+                const selectedPriceRanges = Array.from(document.querySelectorAll('.filter-price-checkbox:checked'))
+                    .map(checkbox => checkbox.value);
+
+                // Tạo URL với query string từ các bộ lọc
+                const url = new URL('http://127.0.0.1:8000/api/products/filter');
+                if (selectedCategories.length > 0) url.searchParams.append('category_id', selectedCategories.join(','));
+                if (selectedPriceRanges.length > 0) url.searchParams.append('price_range', selectedPriceRanges.join(','));
+
+                // Gọi API
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            // Xóa danh sách sản phẩm cũ
+                            productsList.innerHTML = '';
+
+                            // Hiển thị danh sách sản phẩm mới
+                            if (data.data.length > 0) {
+                                data.data.forEach(product => {
+                                    const productHTML = `
+                                <div class="col-sm-4">
+                                    <div class="product-image-wrapper">
+                                        <div class="single-products">
+                                            <div class="productinfo text-center">
+                                                <a href="/product-detail?id=${product.product_id}">
+                                                    <img src="${product.image_url ? '/fontend/images/product/' + product.image_url : '/fontend/images/no-image.png'}" alt="${product.product_name}" />
+                                                    <h2>${new Intl.NumberFormat('vi-VN').format(product.price)} VNĐ</h2>
+                                                    <p>${product.product_name}</p>
+                                                </a>
+                                                <button type="button" class="btn btn-default add-to-cart" data-id_product="${product.product_id}" name="add-to-cart">
+                                                    <i class="fa fa-shopping-cart"></i> Thêm vào giỏ hàng
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                                    productsList.innerHTML += productHTML;
+                                });
+                            } else {
+                                productsList.innerHTML = '<p>Không có sản phẩm nào phù hợp.</p>';
+                            }
+                        } else {
+                            alert(data.message || 'Có lỗi xảy ra khi tải sản phẩm.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Không thể tải sản phẩm.');
+                    });
+            }
+
+            // Gắn sự kiện click vào nút "Áp dụng bộ lọc"
+            applyFiltersButton.addEventListener('click', function () {
+                filterProducts();
+            });
+        });
+    </script>
+
 </body>
 
 </html>

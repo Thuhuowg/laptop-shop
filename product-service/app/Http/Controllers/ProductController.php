@@ -20,9 +20,9 @@ class ProductController extends Controller
     {
         // Tìm sản phẩm theo product_id (kiểu VARCHAR) và kiểm tra xem sản phẩm chưa bị xóa
         $product = Product::with(['category', 'discount'])
-                          ->where('product_id', $id)  // Kiểm tra product_id
-                          ->where('is_deleted', 0)    // Kiểm tra sản phẩm chưa bị xóa
-                          ->first();
+            ->where('product_id', $id)  // Kiểm tra product_id
+            ->where('is_deleted', 0)    // Kiểm tra sản phẩm chưa bị xóa
+            ->first();
 
         // Nếu không tìm thấy sản phẩm
         if (!$product) {
@@ -35,7 +35,7 @@ class ProductController extends Controller
 
     // Thêm mới một sản phẩm
     public function store(Request $request)
-    {   
+    {
         dd($request->all());
         // Xác nhận đầu vào của người dùng khi thêm sản phẩm mới
         $request->validate([
@@ -95,7 +95,7 @@ class ProductController extends Controller
     }
 
     // Xóa một sản phẩm (soft delete)
-    public function destroy( string $id)
+    public function destroy(string $id)
     {
         // Tìm sản phẩm theo product_id (kiểu VARCHAR)
         $product = Product::where('product_id', $id)->where('is_deleted', 0)->first();
@@ -106,5 +106,42 @@ class ProductController extends Controller
         // Đánh dấu sản phẩm là đã xóa
         $product->update(['is_deleted' => 1]);
         return response()->json(['message' => 'Product deleted']);
+    }
+    public function filterProducts(Request $request)
+    {
+        $categoryIds = $request->input('category_id'); // Lấy category_id từ query string
+        $priceRanges = $request->input('price_range'); // Lấy price_range từ query string (0-10, 10-20, ...)
+
+        // Bắt đầu query sản phẩm
+        $query = Product::query();
+
+        // Lọc theo danh mục (nếu có)
+        if ($categoryIds) {
+            $categoryIdsArray = explode(',', $categoryIds);
+            $query->whereIn('category_id', $categoryIdsArray);
+        }
+
+        // Lọc theo mức giá (nếu có)
+        if ($priceRanges) {
+            $priceRangesArray = explode(',', $priceRanges);
+            $query->where(function ($q) use ($priceRangesArray) {
+                foreach ($priceRangesArray as $range) {
+                    list($minPrice, $maxPrice) = explode('-', $range);
+                    $q->orWhere(function ($subQuery) use ($minPrice, $maxPrice) {
+                        $subQuery->where('price', '>=', $minPrice * 1000000)
+                            ->where('price', '<=', $maxPrice * 1000000);
+                    });
+                }
+            });
+        }
+
+        // Lấy danh sách sản phẩm
+        $products = $query->get();
+
+        // Trả về JSON response
+        return response()->json([
+            'status' => 'success',
+            'data' => $products
+        ]);
     }
 }
