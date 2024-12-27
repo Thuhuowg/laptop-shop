@@ -61,10 +61,10 @@
     <div class="sidebar" id="sidebar">
         <h5 class="text-center mb-3">Menu</h5>
         <nav class="nav flex-column">
-            <a class="nav-link" href="/users">Quản lý người dùng</a>
-            <a class="nav-link" href="/product">Quản lý sản phẩm</a>
-            <a class="nav-link" href="/category">Quản lý danh mục</a>
-            <a class="nav-link" href="/discount">Quản lý giảm giá</a>
+            <a class="nav-link" href="{{URL::to('/adusers')}}">Quản lý người dùng</a>
+            <a class="nav-link" href="{{URL::to('/adproduct')}}">Quản lý sản phẩm</a>
+            <a class="nav-link active" href="{{URL::to('/adcategory')}}">Quản lý danh mục</a>
+            <a class="nav-link" href="{{URL::to('/addiscount')}}">Quản lý giảm giá</a>
         </nav>
     </div>
 

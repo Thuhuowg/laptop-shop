@@ -38,6 +38,9 @@ Route::get('/thankyou', function () {
 Route::get('/transaction_history', function () {
     return view('transaction_history');
 });
+Route::get('/inforuser', function () {
+    return view('inforuser');
+});
 Route::get('/product-detail', function () {
     return view('product-detail');
 })->name('product-detail');
@@ -49,4 +52,16 @@ Route::get('/category', function () {
 });
 Route::get('/discount', function () {
     return view('discount');
+});
+Route::get('/adproduct', function () {
+    return view('admin.product');
+});
+Route::get('/adcategory', function () {
+    return view('admin.category');
+});
+Route::get('/addiscount', function () {
+    return view('admin.discount');
+});
+Route::get('/adusers', function () {
+    return view('admin.users');
 });

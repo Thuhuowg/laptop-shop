@@ -87,7 +87,7 @@ class UserController extends Controller
         }
 
         // Update user data
-        $user->update($request->only('username', 'email', 'phone_number', 'address', 'role_id'));
+        $user->update($request->only('username', 'email', 'phone_number', 'address'));
 
         // Update password if provided
         if ($request->filled('password')) {

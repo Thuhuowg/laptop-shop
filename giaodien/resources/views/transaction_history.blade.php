@@ -51,7 +51,7 @@
                                 <td>${order.address}</td>
                                 <td>${order.phone}</td>
                                 <td>${order.payment_method}</td>
-                                <td>${order.total_amount} VND</td>
+                                <td>${new Intl.NumberFormat('vi-VN').format(order.total_amount)} VNĐ</td>
                                 <td>${order.status}</td>
                                 <td>
                                     <button class="btn btn-danger btn-sm" onclick="cancelOrder(${order.id})">Hủy Đơn Hàng</button>

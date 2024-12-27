@@ -15,6 +15,8 @@
     <link href="/fontend/css/sweetalert.css" rel="stylesheet">
     <link href="/fontend/css/main.css" rel="stylesheet">
     <link href="/fontend/css/responsive.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
     <!--[if lt IE 9]>
     <script src="/fontend/js/html5shiv.js"></script>
     <script src="/fontend/js/respond.min.js"></script>
@@ -42,15 +44,22 @@
                         </div>
                         
                     </div>
-                    <li>
+                    
+                   
+                    <div class="col-sm-8">
+                        
+                        <div class="shop-menu pull-right">
+                            <ul class="nav navbar-nav" id="auth-menu">
+                            <li>
+                                    <a href="/inforuser" id="person">
+                                        <i class="fa fa-person"></i>Thông tin cá nhân
+                                    </a>
+                                </li>
+                                <li>
                         <a href="/transaction_history" id="order-history-link">
                             <i class="fa fa-history"></i> Lịch sử đơn hàng
                         </a>
-                    </li>
-                    <div class="col-sm-8">
-                        <div class="shop-menu pull-right">
-                            <ul class="nav navbar-nav" id="auth-menu">
-                               
+                                </li>
                                 <li>
                                     <form id="search-form" class="search-bar">
                                         <input type="text" class="search-input" placeholder="Tìm kiếm...">
@@ -209,7 +218,7 @@
         // Call the function to update the link
         
     }
-
+    document.addEventListener('DOMContentLoaded', initializeHeader);
         const updateCartCount = () => {
             const cart = JSON.parse(localStorage.getItem("cart")) || [];
             const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
@@ -313,6 +322,11 @@
                                     <div class="product-image-wrapper">
                                         <div class="single-products">
                                             <div class="productinfo text-center">
+                                            <input type="hidden" value="${product.product_id}" class="cart_product_id_${product.product_id}">
+                            <input type="hidden" value="${product.product_name}" class="cart_product_name_${product.product_id}">
+                            <input type="hidden" value="${product.image_url}" class="cart_product_image_${product.product_id}">
+                            <input type="hidden" value="${product.price}" class="cart_product_price_${product.product_id}">
+                            <input type="hidden" value="1" class="cart_product_qty_${product.product_id}">
                                                 <a href="/product-detail?id=${product.product_id}">
                                                     <img src="${product.image_url ? '/fontend/images/product/' + product.image_url : '/fontend/images/no-image.png'}" alt="${product.product_name}" />
                                                     <h2>${new Intl.NumberFormat('vi-VN').format(product.price)} VNĐ</h2>
@@ -328,6 +342,8 @@
                             `;
                                     productsList.innerHTML += productHTML;
                                 });
+
+                                attachAddToCartEvent();
                             } else {
                                 productsList.innerHTML = '<p>Không có sản phẩm nào phù hợp.</p>';
                             }
@@ -348,8 +364,7 @@
         });
     </script>
 
-    // Cập nhật ngay khi tải trang
-    updateCartCount();
+    
     
 </script>
     

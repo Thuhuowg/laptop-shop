@@ -9,5 +9,6 @@
     <p>We appreciate your business and hope you enjoy your purchase.</p>
     <a href="/home" class="button">Return to Home</a>
 </div>
+
 <script>localStorage.removeItem("cart")</Script>
 @endsection
