@@ -40,11 +40,17 @@
                         <div class="logo pull-left">
                             <a href="/home"><img src="/fontend/images/logolaptop.png" alt="" /></a>
                         </div>
+                        
                     </div>
+                    <li>
+                        <a href="/transaction_history" id="order-history-link">
+                            <i class="fa fa-history"></i> Lịch sử đơn hàng
+                        </a>
+                    </li>
                     <div class="col-sm-8">
                         <div class="shop-menu pull-right">
                             <ul class="nav navbar-nav" id="auth-menu">
-
+                               
                                 <li>
                                     <form id="search-form" class="search-bar">
                                         <input type="text" class="search-input" placeholder="Tìm kiếm...">
@@ -67,8 +73,6 @@
                                         <i class="fa fa-user"></i> Đăng Nhập
                                     </a>
                                 </li>
-
-
                             </ul>
                         </div>
                     </div>
@@ -134,6 +138,7 @@
     <script src="/fontend/js/checkout.js"></script>
     <script>
     function initializeHeader() {
+        updateAuthLink();
         // Function to delete a cookie by name
         function deleteCookie(name) {
             document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
@@ -142,9 +147,9 @@
         // Function to get the token from cookies
         function getToken() {
             const cookieString = document.cookie.split('; ').find(row => row.startsWith('token='));
+            console.log("Token from cookie:", cookieString);
             return cookieString ? cookieString.split('=')[1] : null;
         }
-
         // Function to handle logout
         function handleLogout() {
             deleteCookie('token');
@@ -175,7 +180,7 @@
         }
 
         // Call the function to update the link
-        updateAuthLink();
+        
     }
 
     // Ensure the function runs after header.html is loaded into the DOM
@@ -189,6 +194,7 @@
 
     // Cập nhật ngay khi tải trang
     updateCartCount();
+    
 </script>
     
 </body>

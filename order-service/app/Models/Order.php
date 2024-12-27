@@ -3,30 +3,34 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Order extends Model
 {
-    //
-    use HasFactory;
-    use SoftDeletes;
-    protected $primaryKey = 'order_id';
-    protected $fillable = [
-        'oder_id',
-        'user_id',
-        'order_date',
-        'status',
-        'total_amount',
-    ];
-    public function orderItems()
-    {
-        return $this->hasMany(OrderItem::class, 'order_id');
-    }
+    // Tên bảng tương ứng trong CSDL
+    protected $table = 'orders';
 
-    // Mối quan hệ với User (n-1)
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
+    // Các trường có thể được gán (mass assignable)
+    protected $fillable = [
+        'user_id', 
+        'customer_name', 
+        'address', 
+        'phone', 
+        'payment_method', 
+        'total_amount', 
+        'status'
+    ];
+
+    // Các trường không được gán (bảo vệ)
+    protected $guarded = ['id'];
+
+    // Thời gian mặc định (Laravel tự động thêm created_at và updated_at)
+    public $timestamps = false;
+
+    // Các định dạng dữ liệu cho các trường ngày tháng
+    protected $dates = [
+        'created_at',
+        'updated_at',
+    ];
+
+
 }

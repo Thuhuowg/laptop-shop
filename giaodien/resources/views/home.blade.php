@@ -64,17 +64,34 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="brands_products"><!--brands_products-->
-                            <h2>Thương hiệu sản phẩm</h2>
-                            <div class="brands-name">
-                                <ul class="nav nav-pills nav-stacked">
-                                    <!-- Danh sách thương hiệu sản phẩm (static example) -->
-                                    <li><a href="#">MSI</a></li>
-                                    <li><a href="#">HP</a></li>
-                                    <li><a href="#">Dell</a></li>
-                                </ul>
-                            </div>
-                        </div><!--/brands_products-->
+                        <form id="filter-form">
+        <!-- Lọc thương hiệu -->
+        <div class="brands_products">
+            <h4>Thương hiệu</h4>
+            <select name="category_id" id="category_id" class="form-control">
+                <option value="">Tất cả</option>
+                <option value="4">MSI</option>
+                <option value="1">HP</option>
+                <option value="3">Dell</option>
+                <option value="2">Lenovo</option>
+            </select>
+        </div>
+
+        <!-- Lọc giá -->
+        <div class="filter-price">
+            <h4>Khoảng giá</h4>
+            <select name="price" id="price" class="form-control">
+                <option value="">Tất cả</option>
+                <option value="0-5000000">Dưới 5 triệu</option>
+                <option value="5000000-10000000">5 - 10 triệu</option>
+                <option value="10000000-20000000">10 - 20 triệu</option>
+                <option value="20000000-50000000">20 - 50 triệu</option>
+            </select>
+        </div>
+
+        <button type="button" id="filter-btn" class="btn btn-primary" style="margin-top: 15px;">Áp dụng</button>
+    </form>
+                        
                     </div>
                 </div>
 

@@ -17,24 +17,10 @@ use App\Http\Controllers\AuthController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
-Route::prefix('orders')->group(function () {
-    // Xem danh sách đơn hàng
-    Route::get('/', [OrderController::class, 'index']);
-
-    // Xem chi tiết đơn hàng
-    Route::get('/{orderId}', [OrderController::class, 'show']);
-
-    // Tạo đơn hàng mới
-    Route::post('/create', [OrderController::class, 'store']);
-
-    // Xoá đơn hàng
-    Route::delete('/{orderId}', [OrderController::class, 'destroy']);
-});
-Route::post('login', [AuthController::class, 'login']);
-Route::middleware('auth:api')->get('user', [AuthController::class, 'user']);
-Route::post('register', [AuthController::class, 'register']);
+Route::get('/orders', [OrderController::class, 'index']);                    // Lấy tất cả đơn hàng
+Route::get('/orders/user/{userId}', [OrderController::class, 'getOrdersByUserId']); // Lấy đơn hàng theo user_id
+Route::get('/orders/{id}', [OrderController::class, 'getOrderById']); // Lấy đơn hàng theo ID
+Route::post('/orders', [OrderController::class, 'store']);                    // Tạo đơn hàng mới
+Route::put('/orders/{id}', [OrderController::class, 'update']);               // Cập nhật đơn hàng
+Route::delete('/orders/{id}', [OrderController::class, 'destroy']);         
 

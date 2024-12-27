@@ -2,148 +2,95 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
-use Tymon\JWTAuth\Facades\JWTAuth;
-use Tymon\JWTAuth\Exceptions\JWTException;
 use App\Models\Order;
-use App\Models\OrderItem;
-
-
-
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 class OrderController extends Controller
 {
-    // Sử dụng middleware auth:api để yêu cầu xác thực JWT
-    // public function __construct()
-    // {
-    //     $this->middleware('auth:api')->except(['index', 'show']);  // Ví dụ: Để công khai index và show, còn lại cần xác thực
-    // }
-
-    // Xem danh sách đơn hàng
+    // Hiển thị tất cả đơn hàng
     public function index()
     {
-        $orders = DB::table('Orders')
-                    ->join('users', 'Orders.user_id', '=', 'users.user_id')
-                    ->select('Orders.*', 'users.username as user_name')
-                    ->get();
-
-        // Đưa ra danh sách đơn hàng với thông tin người dùng
+        $orders = Order::all();
         return response()->json($orders);
     }
-
-    // Xem chi tiết đơn hàng
-    public function show($orderId)
+    public function getOrderById($id)
     {
-        $order = DB::table('Orders')
-                    ->join('users', 'Orders.user_id', '=', 'users.user_id')
-                    ->where('Orders.order_id', $orderId)
-                    ->select('Orders.*', 'users.username as user_name')
-                    ->first();
+        $order = Order::find($id);
 
         if (!$order) {
-            return response()->json(['message' => 'Order not found'], 404);
+            return response()->json(['message' => 'Đơn hàng không tồn tại.'], 404);
         }
 
-        // Lấy các order items
-        $orderItems = DB::table('Order_Items')
-                        ->where('Order_Items.order_id', $orderId)
-                        ->get();
-
-        $order->order_items = $orderItems;
-
-        return response()->json($order);
+        return response()->json($order, 200);
+    }
+    // Lấy đơn hàng theo ID người dùng
+    public function getOrdersByUserId($userId)
+    {
+        $orders = Order::where('user_id', $userId)->get();
+        return response()->json($orders);
     }
 
     // Tạo đơn hàng mới
     public function store(Request $request)
     {
-        // Validation
-        $validator = Validator::make($request->all(), [
-            'user_id' => 'required|exists:users,user_id',
-            'order_date' => 'required|date',
-            'status' => 'required|string',
+        // Xác thực dữ liệu gửi lên
+        $request->validate([
+            'email' => 'required|email',  // Kiểm tra email hợp lệ
+            'customer_name' => 'required|string|max:255',
+            'address' => 'required|string',
+            'phone' => 'required|string|max:20',
+            'payment_method' => 'required|string|max:20',
             'total_amount' => 'required|numeric',
-            'order_items' => 'required|array',
-            'order_items.*.product_name' => 'required|string',
-            'order_items.*.quantity' => 'required|integer',
-            'order_items.*.price' => 'required|numeric',
+            'status' => 'nullable|string|in:pending,completed,cancelled',
         ]);
 
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
+        // Gọi API để lấy user_id từ email
+        $response = Http::get('http://localhost:8001/api/user-id', ['email' => $request->email]);
+
+        if ($response->failed()) {
+            // Nếu không tìm thấy user_id, trả về lỗi
+            return response()->json(['error' => 'User not found'], 404);
         }
 
-        // Bắt đầu transaction để đảm bảo tính toàn vẹn dữ liệu
-        DB::beginTransaction();
+        // Lấy user_id từ response
+        $userId = $response->json()['user_id'];
 
-        try {
-            // $user = JWTAuth::user(); 
-            // if (!$user) {
-            //     return response()->json(['message' => 'Unauthorized'], 401); // Nếu không tìm thấy user
-            // }
-            // Tạo đơn hàng
-            $orderId = DB::table('Orders')->insertGetId([
-                'user_id' => $request->user_id,
-                'order_date' => $request->order_date,
-                'status' => $request->status,
-                'total_amount' => $request->total_amount,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+        // Tạo đơn hàng mới
+        $order = Order::create([
+            'user_id' => $userId,
+            'customer_name' => $request->customer_name,
+            'address' => $request->address,
+            'phone' => $request->phone,
+            'payment_method' => $request->payment_method,
+            'total_amount' => $request->total_amount,
+            'status' => $request->status ?? 'pending',
+        ]);
 
-            // Thêm các item vào đơn hàng
-            foreach ($request->order_items as $item) {
-                DB::table('Order_Items')->insert([
-                    'order_id' => $orderId,
-                    'product_name' => $item['product_name'],
-                    'quantity' => $item['quantity'],
-                    'price' => $item['price'],
-                    // 'total_amount' => $item['quantity'] * $item['price'],
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-            }
-
-            // Commit transaction
-            DB::commit();
-
-            return response()->json(['message' => 'Order created successfully', 'order_id' => $orderId], 201);
-        } catch (\Exception $e) {
-            // Rollback transaction nếu có lỗi
-            DB::rollBack();
-            return response()->json(['message' => 'Error occurred while creating the order', 'error' => $e->getMessage()], 500);
-        }
+        return response()->json($order, 201);
     }
 
-    // Xoá đơn hàng
-     public function destroy($orderId)
+    // Cập nhật thông tin đơn hàng
+    public function update(Request $request, $id)
     {
-        // Bắt đầu transaction
-        DB::beginTransaction();
-
-        try {
-            // Kiểm tra xem đơn hàng có tồn tại không
-            $order = Order::where('order_id', $orderId);  // Tìm đơn hàng bằng order_id
-
-            if (!$order) {
-                return response()->json(['message' => 'Order not found'], 404);
-            }
-
-            // Xoá các item trong đơn hàng (soft delete)
-            OrderItem::where('order_id', $orderId)->delete();  // Soft delete các item trong đơn hàng
-
-            // Xoá đơn hàng (soft delete)
-            $order->delete();  // Soft delete đơn hàng
-
-            // Commit transaction
-            DB::commit();
-
-            return response()->json(['message' => 'Order deleted successfully']);
-        } catch (\Exception $e) {
-            // Rollback transaction nếu có lỗi
-            DB::rollBack();
-            return response()->json(['message' => 'Error occurred while deleting the order', 'error' => $e->getMessage()], 500);
+        $order = Order::find($id);
+        if (!$order) {
+            return response()->json(['error' => 'Order not found'], 404);
         }
+
+        $order->update($request->all());
+
+        return response()->json($order);
+    }
+
+    // Xóa đơn hàng
+    public function destroy($id)
+    {
+        $order = Order::find($id);
+        if (!$order) {
+            return response()->json(['error' => 'Order not found'], 404);
+        }
+
+        $order->delete();
+        return response()->json(['message' => 'Order deleted successfully']);
     }
 }
