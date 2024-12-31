@@ -1,4 +1,5 @@
-
+<!DOCTYPE html>
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
@@ -62,6 +63,8 @@
             <a class="nav-link" href="{{URL::to('/adproduct')}}">Quản lý sản phẩm</a>
             <a class="nav-link active" href="{{URL::to('/adcategory')}}">Quản lý danh mục</a>
             <a class="nav-link" href="{{URL::to('/addiscount')}}">Quản lý giảm giá</a>
+            <a class="nav-link" href="{{URL::to('/adorder')}}">Quản lý đơn hàng</a>
+            <a class="nav-link" href="/login" style="margin-top: 500px; text-align: center;">Đăng Xuất</a>
         </nav>
     </div>
 
@@ -124,18 +127,14 @@
                             <input type="text" class="form-control" id="addProductImage" required>
                         </div>
                         <div class="mb-3">
-                            <label for="addproductId" class="form-label">Danh mục</label>
-                            <select class="form-select" id="addCategory" required>
-                                
-                            </select>
+                            <label for="addCategory" class="form-label">Danh mục</label>
+                            <select class="form-select" id="addCategory" required></select>
                         </div>
                         <div class="mb-3">
-                            <label for="addDiscountId" class="form-label">Giảm giá</label>
-                            <select class="form-select" id="addDiscount">
-                                
-                            </select>
+                            <label for="addDiscount" class="form-label">Giảm giá</label>
+                            <select class="form-select" id="addDiscount"></select>
                         </div>
-                        <button class="btn btn-primary add-product">Thêm</button>
+                        <button type="submit" class="btn btn-primary">Thêm</button>
                     </form>
                 </div>
             </div>
@@ -151,9 +150,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="editProductForm">
-                        
-                    </form>
+                    <form id="editProductForm"></form>
                 </div>
             </div>
         </div>
@@ -163,72 +160,82 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    <!-- call api ajax -->
+    <!-- Call API AJAX -->
     <script type="text/javascript">
-        //sự kiện click menu
+        // Toggle menu
         document.getElementById('menuToggle').addEventListener('click', function () {
-        const sidebar = document.getElementById('sidebar');
-        const content = document.getElementById('content');
-
-        // Toggle class 'open' cho sidebar
-        sidebar.classList.toggle('open');
-        // Toggle class 'shift' cho content
-        content.classList.toggle('shift');
-    });
-
-        //hiển thị danh sách
-        $.ajax({
-            url: "http://127.0.0.1:8000/api/v1/products",
-            type: "GET",
-            dataType: 'json',
-            success: function (data) {
-                const products = $('#productTable');
-                products.empty();
-                data.product.forEach(function(product) {
-                    const row = `
-                        <tr>
-                            <td>${product.product_id}</td>
-                            <td>${product.product_name}</td>
-                            <td>${product.price}</td>
-                            <td><img src="/fontend/images/product/${product.image_url}" alt="${product.product_name}" style="width: 50px; height: auto;"></td>
-                            <td>${product.category.category_name}</td>
-                            <td>${product.discount ? product.discount.discount_percent +"%" : 'Không có'}</td>
-                            <td>
-                                <button class="btn btn-warning btn-sm edit-product" data-id="${product.product_id}">Sửa</button>
-                                <button class="btn btn-danger btn-sm delete-product" data-id="${product.product_id}">Xóa</button>
-                            </td>
-                        </tr>
-                    `;
-                    products.append(row);
-                    
-                });
-
-                //lấy ra dữ liệu danh mục và giảm giá để hiển thị ra form
-                data.category.forEach(function(category){
-                    const optionCate=$('<option></option>').attr('value', category.category_id).text(category.category_name);
-                    $('#addCategory').append(optionCate);
-                });
-
-                data.discount.forEach(function(discount){
-                    const optionDiscount=$('<option></option>').attr('value', discount.discount_id).text(discount.discount_name);
-                    $('#addDiscount').append(optionDiscount);
-                });
-            },
-            error: function (e) {
-                console.log(xhr.responseText);
-            }
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            sidebar.classList.toggle('open');
+            content.classList.toggle('shift');
         });
 
-        //hàm thêm
-        function addProduct(){
+        // Display product list
+        function fetchProducts() {
+            $.ajax({
+                url: "http://127.0.0.1:8000/api/v1/products",
+                type: "GET",
+                dataType: 'json',
+                success: function (data) {
+                    const products = $('#productTable');
+                    products.empty();
+                    data.data.products.forEach(function(product) {
+                        const row = `
+                            <tr>
+                                <td>${product.product_id}</td>
+                                <td>${product.product_name}</td>
+                                <td>${product.price}</td>
+                                <td><img src="/fontend/images/product/${product.image_url}" alt="${product.product_name}" style="width: 50px; height: auto;"></td>
+                                <td>${product.category.category_name}</td>
+                                <td>${product.discount ? product.discount.discount_percent + "%" : 'Không có'}</td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm edit-product" data-id="${product.product_id}">Sửa</button>
+                                    <button class="btn btn-danger btn-sm delete-product" data-id="${product.product_id}">Xóa</button>
+                                </td>
+                            </tr>
+                        `;
+                        products.append(row);
+                    });
+
+                    // Fill categories and discounts
+                    fillCategories(data.data.categories);
+                    fillDiscounts(data.data.discounts);
+                },
+                error: function (xhr) {
+                    console.error(xhr.responseText);
+                }
+            });
+        }
+
+        // Fill categories
+        function fillCategories(categories) {
+            const categorySelect = $('#addCategory');
+            categorySelect.empty();
+            categories.forEach(category => {
+                categorySelect.append(`<option value="${category.category_id}">${category.category_name}</option>`);
+            });
+        }
+
+        // Fill discounts
+        function fillDiscounts(discounts) {
+            const discountSelect = $('#addDiscount');
+            discountSelect.empty();
+            discounts.forEach(discount => {
+                discountSelect.append(`<option value="${discount.discount_id}">${discount.discount_name}</option>`);
+            });
+        }
+
+        // Add product
+        $('#addProductForm').on('submit', function (event) {
+            event.preventDefault();
             var csrfToken = $('meta[name="csrf-token"]').attr('content');
             const data = {
                 product_name: $('#addProductName').val(),
                 price: $('#addProductPrice').val(),
                 description: $('#addProductDescription').val(),
                 image_url: $('#addProductImage').val(),
-                category_id : $('#addCategory').val(),
-                discount_id : $('#addDiscount').val(),
+                category_id: $('#addCategory').val(),
+                discount_id: $('#addDiscount').val(),
             };
 
             $.ajax({
@@ -239,17 +246,18 @@
                     'Content-Type': 'application/json'
                 },
                 data: JSON.stringify(data),
-                success: function(response) {
+                success: function () {
                     alert('Sản phẩm mới đã được thêm thành công!');
-                    location.reload();
+                    fetchProducts();
+                    $('#addProductModal').modal('hide');
                 },
-                error: function(xhr, status, error) {
-                    console.log(xhr.responseText);
+                error: function (xhr) {
+                    console.error(xhr.responseText);
                 }
             });
-        }
+        });
 
-        //hàm xóa
+        // Delete product
         function deleteProduct(productId) {
             var csrfToken = $('meta[name="csrf-token"]').attr('content');
             $.ajax({
@@ -259,153 +267,117 @@
                     'X-CSRF-TOKEN': csrfToken,
                     'Content-Type': 'application/json'
                 },
-                success: function(response) {
+                success: function () {
                     alert('Xóa sản phẩm thành công!');
-                    location.reload();
+                    fetchProducts();
                 },
-                error: function(xhr, status, error) {
-                    console.log(xhr.responseText);
+                error: function (xhr) {
+                    console.error(xhr.responseText);
                 }
             });
         }
 
-        //hàm hiển thị form chỉnh sửa thông tin
+        // Edit product
         function editProduct(productId) {
             $.ajax({
                 url: 'http://127.0.0.1:8000/api/v1/products/' + productId,
                 type: "GET",
                 dataType: 'json',
-                success: function(data) {
-                    // Hiện modal chỉnh sửa
+                success: function (data) {
                     const editProductModal = new bootstrap.Modal(document.getElementById('editProductModal'));
                     editProductModal.show();
-                    const products = $('#editProductForm');
-                    let option = '';
-                    let optionDiscount = ``;
-                    console.log(data.category);
-                    data.category.forEach(function(item) {
-                        if (item.category_id == data.product.category_id) {
-                            option += `<option value="${item.category_id}" selected>${item.category_name}</option>`;
-                        } else {
-                            option += `<option value="${item.category_id}">${item.category_name}</option>`;
-                        }
-                    });
+                    const product = data.data;
 
-                    data.discount.forEach(function(item) {
-                        if (item.discount_id == data.discount.discount_id) {
-                            optionDiscount += `<option value="${item.discount_id}" selected>${item.discount_name}</option>`;
-                        } else {
-                            optionDiscount += `<option value="${item.discount_id}">${item.discount_name}</option>`;
-                        }
-                    });
-                    const row = `
+                    $('#editProductForm').html(`
                         <div class="mb-3">
                             <label for="editProductName" class="form-label">Tên sản phẩm</label>
-                            <input type="text" class="form-control" id="editProductName" required value="${data.product.product_name}">
+                            <input type="text" class="form-control" id="editProductName" required value="${product.product_name}">
                         </div>
                         <div class="mb-3">
                             <label for="editProductPrice" class="form-label">Giá</label>
-                            <input type="number" class="form-control" id="editProductPrice" required value="${data.product.price}">
+                            <input type="number" class="form-control" id="editProductPrice" required value="${product.price}">
                         </div>
                         <div class="mb-3">
                             <label for="editProductDescription" class="form-label">Mô tả</label>
-                            <textarea class="form-control" id="editProductDescription" rows="3" required> ${data.product.description}</textarea>
+                            <textarea class="form-control" id="editProductDescription" rows="3" required>${product.description}</textarea>
                         </div>
                         <div class="mb-3">
                             <label for="editProductImage" class="form-label">Ảnh sản phẩm</label>
-                            <input type="text" class="form-control" id="editProductImage" value="${data.product.image_url}"required>
+                            <input type="text" class="form-control" id="editProductImage" required value="${product.image_url}">
                         </div>
                         <div class="mb-3">
-                            <label for="editproductId" class="form-label">Danh mục</label>
-                            <select class="form-select" id="editCategory" required>
-                                `+option+`
-                            </select>
+                            <label for="editCategory" class="form-label">Danh mục</label>
+                            <select class="form-select" id="editCategory" required></select>
                         </div>
                         <div class="mb-3">
-                            <label for="editDiscountId" class="form-label">Giảm giá</label>
-                            <select class="form-select" id="editDiscount">
-                                `+optionDiscount+`                            
-                            </select>
+                            <label for="editDiscount" class="form-label">Giảm giá</label>
+                            <select class="form-select" id="editDiscount"></select>
                         </div>
-                        <button class="btn btn-primary update-product" data-id="${data.product.product_id}">Lưu</button>
-                    `;
-                    products.empty().append(row);
-                    
+                        <button type="button" class="btn btn-primary update-product" data-id="${product.product_id}">Lưu</button>
+                    `);
 
+                    fillCategories(data.data.categories);
+                    fillDiscounts(data.data.discounts);
+
+                    $('#editCategory').val(product.category_id);
+                    $('#editDiscount').val(product.discount_id);
                 },
-                error: function(xhr, status, error) {
-                    console.log(xhr.responseText);
+                error: function (xhr) {
+                    console.error(xhr.responseText);
                 }
             });
         }
 
-        //hàm cập nhật
-        function updateProduct(productId) {
+        // Update product
+        $(document).on('click', '.update-product', function () {
+            const productId = $(this).data('id');
             var csrfToken = $('meta[name="csrf-token"]').attr('content');
             const data = {
                 product_name: $('#editProductName').val(),
                 price: $('#editProductPrice').val(),
                 description: $('#editProductDescription').val(),
                 image_url: $('#editProductImage').val(),
-                category_id : $('#editCategory').val(),
-                discount_id : $('#editDiscount').val(),
+                category_id: $('#editCategory').val(),
+                discount_id: $('#editDiscount').val(),
             };
+
             $.ajax({
-                url: 'http://127.0.0.1:8000/api/v1/products/'+ productId,
+                url: 'http://127.0.0.1:8000/api/v1/products/' + productId,
                 type: 'PUT',
                 headers: {
                     'X-CSRF-TOKEN': csrfToken,
                     'Content-Type': 'application/json'
                 },
                 data: JSON.stringify(data),
-                success: function(response) {
+                success: function () {
                     alert("Thông tin sản phẩm được lưu thành công!");
-                    location.reload();
+                    fetchProducts();
+                    $('#editProductModal').modal('hide');
                 },
-                error: function(xhr) {
-                    console.log(xhr.responseText);
+                error: function (xhr) {
+                    console.error(xhr.responseText);
                 }
             });
-        }
+        });
 
         $(document).ready(function() {
-            //gọi hàm thêm danh mục
-            $(document).on('click', '.add-product', function(event) {
-                event.preventDefault();
-                addProduct();
-            });
-    
-            //gọi hàm xóa danh mục
-            $(document).on('click', '.delete-product', function(event) {
-                event.preventDefault();
-                
-                var productId = $(this).data('id');
-                
-                // Xác nhận trước khi xóa
+            fetchProducts();
+
+            // Delete product event
+            $(document).on('click', '.delete-product', function() {
+                const productId = $(this).data('id');
                 if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này không?')) {
                     deleteProduct(productId);
                 }
             });
 
-            //gọi hàm hiển thị form chỉnh sửa
-            $(document).on('click', '.edit-product', function(event) {
-                event.preventDefault();
-                
-                var productId = $(this).data('id');
+            // Edit product event
+            $(document).on('click', '.edit-product', function() {
+                const productId = $(this).data('id');
                 editProduct(productId);
             });
-
-            //gọi hàm cập nhật danh mục
-            $(document).on('click', '.update-product', function(event) {
-                event.preventDefault();
-                
-                var productId = $(this).data('id');
-                updateProduct(productId);
-            });
-            
         });
     </script>
-    
 </body>
 
 </html>

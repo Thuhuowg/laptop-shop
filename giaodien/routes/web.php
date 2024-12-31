@@ -53,6 +53,7 @@ Route::get('/category', function () {
 Route::get('/discount', function () {
     return view('discount');
 });
+
 Route::get('/adproduct', function () {
     return view('admin.product');
 });
@@ -64,4 +65,7 @@ Route::get('/addiscount', function () {
 });
 Route::get('/adusers', function () {
     return view('admin.users');
+});
+Route::get('/adorder', function () {
+    return view('admin.order');
 });

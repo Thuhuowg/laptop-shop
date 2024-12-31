@@ -1,0 +1,25 @@
+{
+    "services": [
+      {
+        "name": "product-service",
+        "port": 8000,
+        "baseURL": "http://127.0.0.1:8000"
+      },
+      {
+        "name": "user-service",
+        "port": 8001,
+        "baseURL": "http://127.0.0.1:8001"
+      },
+      {
+        "name": "payment-service",
+        "port": 8003,
+        "baseURL": "http://127.0.0.1:8003"
+      },
+      {
+        "name": "order-service",
+        "port": 8004,
+        "baseURL": "http://127.0.0.1:8004"
+      }
+    ]
+  }
+  

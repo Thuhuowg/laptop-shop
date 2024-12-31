@@ -60,6 +60,8 @@
             <a class="nav-link" href="{{URL::to('/adproduct')}}">Quản lý sản phẩm</a>
             <a class="nav-link active" href="{{URL::to('/adcategory')}}">Quản lý danh mục</a>
             <a class="nav-link" href="{{URL::to('/addiscount')}}">Quản lý giảm giá</a>
+            <a class="nav-link" href="{{URL::to('/adorder')}}">Quản lý đơn hàng</a>
+            <a class="nav-link" href="/login" style="margin-top: 500px; text-align: center;">Đăng Xuất</a>
         </nav>
     </div>
 

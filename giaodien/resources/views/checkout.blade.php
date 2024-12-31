@@ -35,14 +35,14 @@
             <p id="total-amount" class="form-control-static"></p>
         </div>
         <div id="message" class="text-danger mt-3"></div>
-        <button type="submit" class="btn btn-primary">Tạo Đơn Hàng</button>
+        <button type="submit" class="btn btn-primary" >Xác nhận đơn hàng</button>
     </form>
     <div id="payment-options" style="display:none;">
         <button type="button" id="vnpay-btn" class="btn btn-secondary btn-sm">
             <img src="/fontend/images/vnpay-logo.png" alt="VNPay" style="width: 20px; height: auto; margin-right: 5px;">
             Thanh toán VNPay
         </button>
-        <button type="button" id="cod-btn" class="btn btn-secondary btn-sm">
+        <button type="button" id="cod-btn" class="btn btn-secondary btn-sm" style="MARGIN-TOP: 36px;">
             Thanh toán COD
         </button>
     </div>

@@ -11,28 +11,28 @@
                 <!-- Slide images -->
                 <div class="item active">
                     <div class="col-sm-12">
-                        <img style="width: 100%;" src="/fontend/images/banner001.jpg" class="girl img-responsive"
+                        <img style="width: 100%;" src="/fontend/images/slider1.webp" class="girl img-responsive"
                             alt="Slide 1" />
                     </div>
                 </div>
                 <div class="item">
                     <div class="col-sm-12">
-                        <img style="width: 100%;height: 70%" src="/fontend/images/banner002.jpg"  class="girl img-responsive"
+                        <img style="width: 100%;" src="/fontend/images/slider2.jpg" class="girl img-responsive"
                             alt="Slide 2" />
                     </div>
                 </div>
                 <div class="item">
                     <div class="col-sm-12">
-                        <img style="width: 100%;" src="/fontend/images/banner003.jpg" class="girl img-responsive"
+                        <img style="width: 100%;" src="/fontend/images/slider3.webp" class="girl img-responsive"
                             alt="Slide 3" />
                     </div>
                 </div>
-                <!-- <div class="item">
+                <div class="item">
                     <div class="col-sm-12">
                         <img style="width: 100%;" src="/fontend/images/slider4.webp" class="girl img-responsive"
                             alt="Slide 4" />
                     </div>
-                </div> -->
+                </div>
             </div>
             <a href="#slider-carousel" class="left control-carousel hidden-xs" data-slide="prev">
                 <i class="fa fa-angle-left"></i>
@@ -111,12 +111,33 @@
                 </div>
             </div>
 
-            <div class="col-sm-9 padding-right">
-                <div class="fontendatures_items">
-                    <h2 class="title text-center">Sản phẩm mới nhất</h2>
-                    <div id="products-list"></div> <!-- Products will be added here -->
+            <div class="container">
+    <h2>Kết quả tìm kiếm cho: "{{ $query }}"</h2>
+    <div class="row">
+        @if($products->isEmpty())
+            <p>Không tìm thấy sản phẩm nào.</p>
+        @else
+            @foreach($products as $product)
+                <div class="col-sm-4">
+                    <div class="product-image-wrapper">
+                        <div class="single-products">
+                            <div class="productinfo text-center">
+                                <a href="/product-detail?id={{ $product->product_id }}">
+                                    <img src="{{ $product->image_url ? '/fontend/images/product/' . $product->image_url : '/fontend/images/no-image.png' }}" alt="{{ $product->product_name }}" />
+                                    <h2>{{ number_format($product->price) }} VNĐ</h2>
+                                    <p>{{ $product->product_name }}</p>
+                                </a>
+                                <button type="button" class="btn btn-default add-to-cart" data-id_product="{{ $product->product_id }}">
+                                    <i class="fa fa-shopping-cart"></i> Thêm vào giỏ hàng
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            @endforeach
+        @endif
+    </div>
+</div>
         </div>
     </div>
 </section>

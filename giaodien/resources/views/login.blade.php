@@ -91,7 +91,7 @@
 
                     <div class="text-center text-lg-start">
                         <button type="button" id="login-button" class="btn btn-primary btn-lg px-5 py-2">Đăng nhập</button>
-                        <p class="small fw-bold mt-2 pt-1 mb-0">Chưa có tài khoản? <a href="/fe/register.html" class="link-danger">Đăng ký</a></p>
+                        <p class="small fw-bold mt-2 pt-1 mb-0">Chưa có tài khoản? <a href="/register" class="link-danger">Đăng ký</a></p>
                     </div>
 
                     <!-- Phần tử hiển thị lỗi -->

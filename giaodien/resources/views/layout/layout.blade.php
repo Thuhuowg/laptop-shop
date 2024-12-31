@@ -61,13 +61,13 @@
                         </a>
                                 </li>
                                 <li>
-                                    <form id="search-form" class="search-bar">
-                                        <input type="text" class="search-input" placeholder="Tìm kiếm...">
+                                <form id="search-form" class="search-bar" onsubmit="return handleSearch(event);">
+                                        <input type="text" name="query" id="search-query" class="search-input" placeholder="Tìm kiếm..." required>
                                     </form>
                                 </li>
                                 <li>
                                     <a href="tel:+84123456789" id="phone-icon">
-                                        <i class="fa fa-phone"></i> +84 123 456 789
+                                        <i class="fa fa-phone"></i> 0961992655
                                     </a>
                                 </li>
                                 <li>
@@ -202,6 +202,7 @@
                 const token = getToken();
                 if (token) {
                     authLink.textContent = 'Đăng xuất';
+                    // localStorage.removeItem("cart")
                     authLink.href = '#'; // Không dẫn đến trang mới
                     authLink.onclick = handleLogout; // Gọi hàm logout khi nhấn
                 } else {
@@ -362,6 +363,57 @@
                 filterProducts();
             });
         });
+        function handleSearch(event) {
+    event.preventDefault(); // Prevent the default form submission
+
+    const query = document.getElementById('search-query').value;
+
+    // Call the API endpoint with the search query
+    fetch(`http://127.0.0.1:8000/api/products/search?query=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                displayProducts(data.data); // Function to display products
+            } else {
+                alert(data.message || 'No products found');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while searching.');
+        });
+}
+function displayProducts(products) {
+    const productsList = document.getElementById('products-list');
+    productsList.innerHTML = ''; // Clear previous results
+
+    if (products.length === 0) {
+        productsList.innerHTML = '<p>No products found.</p>';
+        return;
+    }
+
+    products.forEach(product => {
+        const productHTML = `
+            <div class="col-sm-4">
+                <div class="product-image-wrapper">
+                    <div class="single-products">
+                        <div class="productinfo text-center">
+                            <a href="/product-detail?id=${product.product_id}">
+                                <img src="${product.image_url ? '/fontend/images/product/' + product.image_url : '/fontend/images/no-image.png'}" alt="${product.product_name}" />
+                                <h2>${new Intl.NumberFormat('vi-VN').format(product.price)} VNĐ</h2>
+                                <p>${product.product_name}</p>
+                            </a>
+                            <button type="button" class="btn btn-default add-to-cart" data-id_product="${product.product_id}">
+                                <i class="fa fa-shopping-cart"></i> Thêm vào giỏ hàng
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        productsList.innerHTML += productHTML;
+    });
+}
     </script>
 
     

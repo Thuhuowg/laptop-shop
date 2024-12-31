@@ -6,7 +6,7 @@ const fetchProductDetails = async (productId) => {
             throw new Error('Không thể lấy thông tin sản phẩm.');
         }
         const data = await response.json();
-        return data.product; // Trả về thông tin sản phẩm
+        return data.data; // Trả về thông tin sản phẩm
     } catch (error) {
         console.error('Lỗi khi lấy thông tin sản phẩm:', error);
         return null; // Trả về null nếu có lỗi
@@ -31,7 +31,7 @@ const renderCartItems = async () => {
 
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td><img src="/fontend/images/product/${productDetails.image_url}" alt="${productDetails.product_name}" width="50"></td>
+                    <td><img src="${productDetails.image_url ? '/fontend/images/product/' + productDetails.image_url : '/fontend/images/no-image.png'}" alt="${productDetails.product_name}" width="50"></td>
                     <td>${productDetails.product_name}</td>
                     <td>${new Intl.NumberFormat('vi-VN').format(productDetails.price)} VNĐ</td>
                     <td>

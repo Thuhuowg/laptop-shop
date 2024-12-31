@@ -1,35 +1,37 @@
 // Gọi API để lấy danh sách sản phẩm
-
-fetch('http://127.0.0.1:8000/api/v1/products', {
-    method: 'GET'
-})
-    .then(response => {
+const fetchProducts = async () => {
+    try {
+        const response = await fetch('http://127.0.0.1:8000/api/v1/products', {
+            method: 'GET'
+        });
         if (!response.ok) {
             throw new Error('Không thể lấy sản phẩm.');
         }
-        return response.json();
-    })
-    .then(data => {
-        renderAvailableProducts(data.product); // Gọi hàm render để hiển thị sản phẩm
-        renderCategories(data.category); // Gọi hàm để hiển thị danh mục
-        renderDiscounts(data.discount); // Gọi hàm để hiển thị giảm giá
-    })
-    .catch(error => {
-        console.log('Lỗi khi gọi API:', error);
-    });
+        const data = await response.json();
+        
+        // Kiểm tra trạng thái và lấy dữ liệu sản phẩm
+        if (data.status === "success") {
+            renderAvailableProducts(data.data.products);
+            renderCategories(data.data.categories); // Cập nhật nếu có danh mục trong API
+            renderDiscounts(data.data.discounts); // Cập nhật nếu có giảm giá trong API
+        } else {
+            throw new Error('Không có sản phẩm');
+        }
+    } catch (error) {
+        
+    }
+};
 
 // Hàm hiển thị sản phẩm
 const renderAvailableProducts = (products) => {
     const productsList = document.getElementById('products-list');
     productsList.innerHTML = ''; // Xóa danh sách sản phẩm cũ
 
-    // Kiểm tra xem có sản phẩm nào hay không
     if (!Array.isArray(products) || products.length === 0) {
         productsList.innerHTML = '<p>Không có sản phẩm</p>';
         return;
     }
 
-    // Lặp qua mỗi sản phẩm và thêm vào danh sách
     products.forEach(product => {
         const productItem = document.createElement('div');
         productItem.classList.add('col-sm-4');
@@ -61,7 +63,6 @@ const renderAvailableProducts = (products) => {
         productsList.appendChild(productItem);
     });
 
-    // Gắn sự kiện click "Thêm giỏ hàng"
     attachAddToCartEvent();
 };
 
@@ -94,7 +95,7 @@ const renderDiscounts = (discounts) => {
 // Gắn sự kiện click "Thêm giỏ hàng"
 const attachAddToCartEvent = () => {
     document.querySelectorAll(".add-to-cart").forEach(button => {
-        button.addEventListener("click", (event) => {
+        button.addEventListener("click", () => {
             const productId = button.getAttribute("data-id_product");
             const productName = document.querySelector(`.cart_product_name_${productId}`).value;
             const price = parseFloat(document.querySelector(`.cart_product_price_${productId}`).value);
@@ -118,7 +119,6 @@ const attachAddToCartEvent = () => {
 const addToCart = (product) => {
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
-    // Kiểm tra nếu sản phẩm đã có trong giỏ hàng
     const existingProductIndex = cart.findIndex(item => item.product_id === product.product_id);
     if (existingProductIndex !== -1) {
         cart[existingProductIndex].quantity += product.quantity;
@@ -126,7 +126,6 @@ const addToCart = (product) => {
         cart.push(product);
     }
 
-    // Lưu giỏ hàng vào localStorage
     localStorage.setItem('cart', JSON.stringify(cart));
     alert('Sản phẩm đã được thêm vào giỏ hàng!');
     updateCartCount();
@@ -135,7 +134,7 @@ const addToCart = (product) => {
 // Hàm tải chi tiết sản phẩm
 const loadProductDetails = async () => {
     const urlParams = new URLSearchParams(window.location.search);
-    const productId = urlParams.get('id'); // Lấy ID sản phẩm từ URL
+    const productId = urlParams.get('id');
 
     if (!productId) {
         return;
@@ -147,7 +146,7 @@ const loadProductDetails = async () => {
             throw new Error('Sản phẩm không tìm thấy');
         }
         const data = await response.json();
-        displayProductDetails(data.product, data.category, data.discount); // Cập nhật để truyền dữ liệu đúng
+        displayProductDetails(data.product, data.category, data.discount);
     } catch (error) {
         console.error('Lỗi khi tải thông tin sản phẩm:', error);
         alert('Không tìm thấy sản phẩm hoặc có lỗi trong việc tải thông tin');
@@ -189,19 +188,22 @@ const displayProductDetails = (product, categories, discounts) => {
     }
 };
 
-// Gọi hàm tải chi tiết sản phẩm
-loadProductDetails();
+// Gọi hàm tải danh sách sản phẩm
+fetchProducts();
 
 // Thêm sự kiện lọc sản phẩm
 const addFilterEvent = () => {
-    document.getElementById('filter-btn').addEventListener('click', async function () {
+    document.getElementById('filter-btn').addEventListener('click', async () => {
         const category_id = document.getElementById('category_id').value;
         const price = document.getElementById('price').value;
 
         try {
             const response = await fetch(`http://127.0.0.1:8000/api/v1/filter-products?category_id=${category_id}&price=${price}`);
+            if (!response.ok) {
+                throw new Error('Lỗi khi lọc sản phẩm');
+            }
             const products = await response.json();
-            renderAvailableProducts(products); // Cập nhật danh sách sản phẩm sau khi lọc
+            renderAvailableProducts(products.data.products); // Cập nhật danh sách sản phẩm sau khi lọc
         } catch (error) {
             console.error('Lỗi khi lọc sản phẩm:', error);
             const productsList = document.getElementById('products-list');

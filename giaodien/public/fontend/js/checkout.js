@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const cart = JSON.parse(localStorage.getItem('cart')) || [];
     let totalAmount = 0;
     cart.forEach(item => {
-        totalAmount += item.price * item.quantity;
+        totalAmount += item.price * item.quantity; // Xác định giá trị sản phẩm
     });
     document.getElementById('total-amount').textContent = totalAmount.toLocaleString() + ' VND';
 
@@ -15,29 +15,24 @@ document.addEventListener("DOMContentLoaded", function () {
     paymentMethodSelect.addEventListener('change', function () {
         const selectedMethod = paymentMethodSelect.value;
         if (selectedMethod === 'VNPay') {
-            paymentOptions.style.display = 'block'; // Hiện chỉ nút VNPay
+            paymentOptions.style.display = 'block'; 
             vnpayBtn.style.display = 'inline-block';
-            codBtn.style.display = 'none'; // Ẩn nút COD
+            codBtn.style.display = 'none'; 
         } else if (selectedMethod === 'COD') {
-            paymentOptions.style.display = 'block'; // Hiện nút COD
+            paymentOptions.style.display = 'block'; 
             codBtn.style.display = 'inline-block';
-            vnpayBtn.style.display = 'none'; // Ẩn nút VNPay
+            vnpayBtn.style.display = 'none'; 
         } else {
-            paymentOptions.style.display = 'none'; // Ẩn tất cả
+            paymentOptions.style.display = 'none'; 
         }
     });
 
-    vnpayBtn.addEventListener('click', function () {
-        handleVNPayPayment();
-    });
-
-    codBtn.addEventListener('click', function () {
-        handleCODPayment();
-    });
+    vnpayBtn.addEventListener('click', handleVNPayPayment);
+    codBtn.addEventListener('click', handleCODPayment);
 
     document.getElementById('checkout-form').addEventListener('submit', function(event) {
         event.preventDefault();
-        
+
         const email = document.getElementById('email').value;
         const name = document.getElementById('name').value;
         const address = document.getElementById('address').value;
@@ -55,6 +50,8 @@ document.addEventListener("DOMContentLoaded", function () {
             status: 'pending'
         };
 
+        console.log('Order Data:', orderData); // Kiểm tra dữ liệu đơn hàng
+
         fetch('http://localhost:8004/api/orders', {
             method: 'POST',
             headers: {
@@ -62,13 +59,19 @@ document.addEventListener("DOMContentLoaded", function () {
             },
             body: JSON.stringify(orderData),
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Lỗi khi tạo đơn hàng: ' + response.statusText);
+            }
+            return response.json();
+        })
         .then(order => {
             alert('Đơn hàng đã được tạo thành công!');
             localStorage.removeItem("cart");
         })
         .catch(error => {
             console.error('Error creating order:', error);
+            alert('Không thể tạo đơn hàng: ' + error.message);
         });
     });
 
@@ -104,6 +107,6 @@ document.addEventListener("DOMContentLoaded", function () {
     function handleCODPayment() {
         console.log('Hàm thanh toán COD được gọi');
         localStorage.removeItem("cart");
-        window.location.href = "/thankyou"; // Đường dẫn đến trang Thank You
+        window.location.href = "/thankyou"; 
     }
 });

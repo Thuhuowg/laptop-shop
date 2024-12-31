@@ -2499,6 +2499,7 @@ textarea {
   border: 0 none;
   border-radius: 0;
   margin-top: 16px;
+  width: 148px;
 }
 
 .blank-arrow {
@@ -2620,4 +2621,23 @@ textarea {
 
 .contact-info .social-networks ul li a:hover {
   color: #FE980F;
+}
+.background-blur {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQN620qlW1mp_x0e6QENEsZB9Nt6KlAzvfkzQ&s');
+  background-size: cover;
+  background-position: center;
+  filter: blur(8px); /* Làm mờ ảnh nền */
+  z-index: -1; /* Đặt lớp nền phía sau */
+}
+
+.thank-you-container {
+  background-color: rgba(255, 255, 255, 0.8); /* Tạo nền trắng mờ cho nội dung */
+  border-radius: 10px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Hiệu ứng đổ bóng */
 }

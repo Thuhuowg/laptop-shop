@@ -65,6 +65,8 @@
             <a class="nav-link" href="{{URL::to('/adproduct')}}">Quản lý sản phẩm</a>
             <a class="nav-link active" href="{{URL::to('/adcategory')}}">Quản lý danh mục</a>
             <a class="nav-link" href="{{URL::to('/addiscount')}}">Quản lý giảm giá</a>
+            <a class="nav-link" href="{{URL::to('/adorder')}}">Quản lý đơn hàng</a>
+            <a class="nav-link" href="/login" style="margin-top: 500px; text-align: center;">Đăng Xuất</a>
         </nav>
     </div>
 
@@ -72,7 +74,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
             <button class="menu-btn" id="menuToggle">☰</button>
-            <a class="navbar-brand" href="/user">User Management</a>
+            <a class="navbar-brand" href="/user">Quản Lý Người Dùng</a>
             
         </div>
     </nav>

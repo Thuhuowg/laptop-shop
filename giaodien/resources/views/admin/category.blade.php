@@ -60,10 +60,12 @@
     <div class="sidebar" id="sidebar">
         <h5 class="text-center mb-3">Menu</h5>
         <nav class="nav flex-column">
-            <a class="nav-link" href="{{URL::to('/adusers')}}">Quản lý người dùng</a>
+        <a class="nav-link" href="{{URL::to('/adusers')}}">Quản lý người dùng</a>
             <a class="nav-link" href="{{URL::to('/adproduct')}}">Quản lý sản phẩm</a>
             <a class="nav-link active" href="{{URL::to('/adcategory')}}">Quản lý danh mục</a>
             <a class="nav-link" href="{{URL::to('/addiscount')}}">Quản lý giảm giá</a>
+            <a class="nav-link" href="{{URL::to('/adorder')}}">Quản lý đơn hàng</a>
+            <a class="nav-link" href="/login" style="margin-top: 500px; text-align: center;">Đăng Xuất</a>
         </nav>
     </div>
 

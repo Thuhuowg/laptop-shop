@@ -118,7 +118,7 @@
                         alert('Đăng ký thành công!');
                         window.location.href = '/login';
                     } else {
-                        alert('Đăng ký thất bại! ' + (result.message || 'Lỗi không xác định!'));
+                        alert(' ' + (result.message || 'Lỗi không xác định!'));
                     }
                 } else {
                     // Xử lý trường hợp có lỗi từ API
