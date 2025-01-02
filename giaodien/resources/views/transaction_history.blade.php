@@ -36,8 +36,9 @@
         if (userId) {
             fetch(`http://localhost:8004/api/orders/user/${userId}`)
                 .then(response => response.json())
-                .then(orders => {
+                .then(data => {
                     const ordersTbody = document.getElementById('orders-tbody');
+                    const orders = data.data; // Đảm bảo lấy danh sách đơn hàng từ `data`
 
                     if (orders.length > 0) {
                         document.getElementById('no-orders-message').style.display = 'none';
@@ -55,7 +56,6 @@
                                 <td>${order.status}</td>
                                 <td>
                                     <button class="btn btn-danger btn-sm" onclick="cancelOrder(${order.id})">Hủy Đơn Hàng</button>
-                                    <!-- <button class="btn btn-primary btn-sm" onclick="generatePDF(${order.id})">In Đơn Hàng Ra PDF</button> -->
                                 </td>
                             `;
                             ordersTbody.appendChild(orderRow);
@@ -91,35 +91,5 @@
             });
         }
     }
-
-//     function generatePDF(orderId) {
-//     fetch(`http://localhost:8004/api/orders/${orderId}`)
-//         .then(response => response.json())
-//         .then(order => {
-//             const { jsPDF } = window.jspdf;
-//             const doc = new jsPDF();
-
-//             // Thiết lập font hỗ trợ tiếng Việt
-            
-
-//             // Tạo nội dung PDF
-//             doc.text("Chi Tiết Đơn Hàng", 14, 10);
-//             doc.text(`Mã Đơn Hàng: ${order.id}`, 14, 20);
-//             doc.text(`Tên Khách Hàng: ${order.customer_name}`, 14, 30);
-//             doc.text(`Địa Chỉ: ${order.address}`, 14, 40);
-//             doc.text(`Số Điện Thoại: ${order.phone}`, 14, 50);
-//             doc.text(`Phương Thức Thanh Toán: ${order.payment_method}`, 14, 60);
-//             doc.text(`Tổng Số Tiền: ${order.total_amount} VND`, 14, 70);
-//             doc.text(`Trạng Thái: ${order.status}`, 14, 80);
-
-//             // Lưu file PDF
-//             doc.save(`don_hang_${order.id}.pdf`);
-//         })
-//         .catch(error => {
-//             console.error('Lỗi khi lấy thông tin đơn hàng:', error);
-//             alert('Có lỗi xảy ra khi lấy thông tin đơn hàng.');
-//         });
-// }
-
 </script>
 @endsection
