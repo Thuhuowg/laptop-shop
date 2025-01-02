@@ -5,29 +5,49 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+
 class OrderController extends Controller
 {
     // Hiển thị tất cả đơn hàng
     public function index()
     {
         $orders = Order::all();
-        return response()->json($orders);
+        return response()->json([
+            'status' => true,
+            'message' => 'Danh sách đơn hàng',
+            'data' => $orders
+        ]);
     }
+
+    // Lấy đơn hàng theo ID
     public function getOrderById($id)
     {
         $order = Order::find($id);
 
         if (!$order) {
-            return response()->json(['message' => 'Đơn hàng không tồn tại.'], 404);
+            return response()->json([
+                'status' => false,
+                'message' => 'Đơn hàng không tồn tại.',
+                'data' => null
+            ], 404);
         }
 
-        return response()->json($order, 200);
+        return response()->json([
+            'status' => true,
+            'message' => 'Đơn hàng tìm thấy.',
+            'data' => $order
+        ], 200);
     }
+
     // Lấy đơn hàng theo ID người dùng
     public function getOrdersByUserId($userId)
     {
         $orders = Order::where('user_id', $userId)->get();
-        return response()->json($orders);
+        return response()->json([
+            'status' => true,
+            'message' => 'Danh sách đơn hàng của người dùng',
+            'data' => $orders
+        ]);
     }
 
     // Tạo đơn hàng mới
@@ -49,7 +69,11 @@ class OrderController extends Controller
 
         if ($response->failed()) {
             // Nếu không tìm thấy user_id, trả về lỗi
-            return response()->json(['error' => 'User not found'], 404);
+            return response()->json([
+                'status' => false,
+                'message' => 'Không tìm thấy người dùng.',
+                'data' => null
+            ], 404);
         }
 
         // Lấy user_id từ response
@@ -66,7 +90,11 @@ class OrderController extends Controller
             'status' => $request->status ?? 'pending',
         ]);
 
-        return response()->json($order, 201);
+        return response()->json([
+            'status' => true,
+            'message' => 'Đơn hàng được tạo thành công',
+            'data' => $order
+        ], 201);
     }
 
     // Cập nhật thông tin đơn hàng
@@ -74,12 +102,20 @@ class OrderController extends Controller
     {
         $order = Order::find($id);
         if (!$order) {
-            return response()->json(['error' => 'Order not found'], 404);
+            return response()->json([
+                'status' => false,
+                'message' => 'Đơn hàng không tồn tại.',
+                'data' => null
+            ], 404);
         }
 
         $order->update($request->all());
 
-        return response()->json($order);
+        return response()->json([
+            'status' => true,
+            'message' => 'Đơn hàng cập nhật thành công.',
+            'data' => $order
+        ]);
     }
 
     // Xóa đơn hàng
@@ -87,10 +123,18 @@ class OrderController extends Controller
     {
         $order = Order::find($id);
         if (!$order) {
-            return response()->json(['error' => 'Order not found'], 404);
+            return response()->json([
+                'status' => false,
+                'message' => 'Đơn hàng không tồn tại.',
+                'data' => null
+            ], 404);
         }
 
         $order->delete();
-        return response()->json(['message' => 'Order deleted successfully']);
+        return response()->json([
+            'status' => true,
+            'message' => 'Đơn hàng đã được xóa.',
+            'data' => null
+        ]);
     }
 }
