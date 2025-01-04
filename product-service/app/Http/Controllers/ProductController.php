@@ -120,7 +120,7 @@ class ProductController extends Controller
         if ($priceRanges = $request->input('price_range')) {
             foreach (explode(',', $priceRanges) as $range) {
                 [$minPrice, $maxPrice] = explode('-', $range);
-                $query->orWhereBetween('price', [(int)$minPrice * 1000000, (int)$maxPrice * 1000000]);
+                $query->orWhereBetween('price', [(int)$minPrice , (int)$maxPrice ]);
             }
         }
 

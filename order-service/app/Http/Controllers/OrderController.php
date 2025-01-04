@@ -86,7 +86,7 @@ class OrderController extends Controller
             'address' => $request->address,
             'phone' => $request->phone,
             'payment_method' => $request->payment_method,
-            'total_amount' => $request->total_amount,
+            'total_amount' => (float)$request->total_amount,
             'status' => $request->status ?? 'pending',
         ]);
 

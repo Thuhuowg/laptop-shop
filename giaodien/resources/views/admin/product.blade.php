@@ -16,7 +16,6 @@
             background-color: rgb(229, 149, 2);
         }
 
-        /* Sidebar Styles */
         .sidebar {
             height: 100vh;
             width: 250px;
@@ -34,7 +33,6 @@
             transform: translateX(0);
         }
 
-        /* Content Styles */
         .content {
             transition: margin-left 0.3s ease;
         }
@@ -43,7 +41,6 @@
             margin-left: 250px;
         }
 
-        /* Menu Button Style */
         .menu-btn {
             border: none;
             background: transparent;
@@ -55,7 +52,6 @@
 </head>
 
 <body>
-    <!-- Sidebar Menu -->
     <div class="sidebar" id="sidebar">
         <h5 class="text-center mb-3">Menu</h5>
         <nav class="nav flex-column">
@@ -68,7 +64,6 @@
         </nav>
     </div>
 
-    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
             <button class="menu-btn" id="menuToggle">☰</button>
@@ -76,7 +71,6 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
     <div class="container mt-4 content" id="content">
         <section id="productList">
             <h1>Danh sách sản phẩm</h1>
@@ -150,7 +144,33 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="editProductForm"></form>
+                    <form id="editProductForm">
+                        <div class="mb-3">
+                            <label for="editProductName" class="form-label">Tên sản phẩm</label>
+                            <input type="text" class="form-control" id="editProductName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editProductPrice" class="form-label">Giá</label>
+                            <input type="number" class="form-control" id="editProductPrice" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editProductDescription" class="form-label">Mô tả</label>
+                            <textarea class="form-control" id="editProductDescription" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editProductImage" class="form-label">Ảnh sản phẩm</label>
+                            <input type="text" class="form-control" id="editProductImage" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editCategory" class="form-label">Danh mục</label>
+                            <select class="form-select" id="editCategory" required></select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editDiscount" class="form-label">Giảm giá</label>
+                            <select class="form-select" id="editDiscount"></select>
+                        </div>
+                        <button type="button" class="btn btn-primary update-product" data-id="">Lưu</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -160,9 +180,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    <!-- Call API AJAX -->
     <script type="text/javascript">
-        // Toggle menu
         document.getElementById('menuToggle').addEventListener('click', function () {
             const sidebar = document.getElementById('sidebar');
             const content = document.getElementById('content');
@@ -170,7 +188,6 @@
             content.classList.toggle('shift');
         });
 
-        // Display product list
         function fetchProducts() {
             $.ajax({
                 url: "http://127.0.0.1:8000/api/v1/products",
@@ -197,7 +214,6 @@
                         products.append(row);
                     });
 
-                    // Fill categories and discounts
                     fillCategories(data.data.categories);
                     fillDiscounts(data.data.discounts);
                 },
@@ -207,28 +223,25 @@
             });
         }
 
-        // Fill categories
         function fillCategories(categories) {
-            const categorySelect = $('#addCategory');
+            const categorySelect = $('#addCategory, #editCategory');
             categorySelect.empty();
             categories.forEach(category => {
                 categorySelect.append(`<option value="${category.category_id}">${category.category_name}</option>`);
             });
         }
 
-        // Fill discounts
         function fillDiscounts(discounts) {
-            const discountSelect = $('#addDiscount');
+            const discountSelect = $('#addDiscount, #editDiscount');
             discountSelect.empty();
             discounts.forEach(discount => {
                 discountSelect.append(`<option value="${discount.discount_id}">${discount.discount_name}</option>`);
             });
         }
 
-        // Add product
         $('#addProductForm').on('submit', function (event) {
             event.preventDefault();
-            var csrfToken = $('meta[name="csrf-token"]').attr('content');
+            const csrfToken = $('meta[name="csrf-token"]').attr('content');
             const data = {
                 product_name: $('#addProductName').val(),
                 price: $('#addProductPrice').val(),
@@ -257,9 +270,8 @@
             });
         });
 
-        // Delete product
         function deleteProduct(productId) {
-            var csrfToken = $('meta[name="csrf-token"]').attr('content');
+            const csrfToken = $('meta[name="csrf-token"]').attr('content');
             $.ajax({
                 url: 'http://127.0.0.1:8000/api/v1/products/' + productId,
                 method: 'DELETE',
@@ -277,50 +289,24 @@
             });
         }
 
-        // Edit product
         function editProduct(productId) {
             $.ajax({
                 url: 'http://127.0.0.1:8000/api/v1/products/' + productId,
                 type: "GET",
                 dataType: 'json',
                 success: function (data) {
-                    const editProductModal = new bootstrap.Modal(document.getElementById('editProductModal'));
-                    editProductModal.show();
                     const product = data.data;
 
-                    $('#editProductForm').html(`
-                        <div class="mb-3">
-                            <label for="editProductName" class="form-label">Tên sản phẩm</label>
-                            <input type="text" class="form-control" id="editProductName" required value="${product.product_name}">
-                        </div>
-                        <div class="mb-3">
-                            <label for="editProductPrice" class="form-label">Giá</label>
-                            <input type="number" class="form-control" id="editProductPrice" required value="${product.price}">
-                        </div>
-                        <div class="mb-3">
-                            <label for="editProductDescription" class="form-label">Mô tả</label>
-                            <textarea class="form-control" id="editProductDescription" rows="3" required>${product.description}</textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editProductImage" class="form-label">Ảnh sản phẩm</label>
-                            <input type="text" class="form-control" id="editProductImage" required value="${product.image_url}">
-                        </div>
-                        <div class="mb-3">
-                            <label for="editCategory" class="form-label">Danh mục</label>
-                            <select class="form-select" id="editCategory" required></select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editDiscount" class="form-label">Giảm giá</label>
-                            <select class="form-select" id="editDiscount"></select>
-                        </div>
-                        <button type="button" class="btn btn-primary update-product" data-id="${product.product_id}">Lưu</button>
-                    `);
-
-                    fillCategories(data.data.categories);
-                    fillDiscounts(data.data.discounts);
-
+                    $('#editProductName').val(product.product_name);
+                    $('#editProductPrice').val(product.price);
+                    $('#editProductDescription').val(product.description);
+                    $('#editProductImage').val(product.image_url);
                     $('#editCategory').val(product.category_id);
                     $('#editDiscount').val(product.discount_id);
+                    $('#editProductModal').find('.update-product').data('id', productId);
+
+                    const editProductModal = new bootstrap.Modal(document.getElementById('editProductModal'));
+                    editProductModal.show();
                 },
                 error: function (xhr) {
                     console.error(xhr.responseText);
@@ -328,10 +314,9 @@
             });
         }
 
-        // Update product
         $(document).on('click', '.update-product', function () {
             const productId = $(this).data('id');
-            var csrfToken = $('meta[name="csrf-token"]').attr('content');
+            const csrfToken = $('meta[name="csrf-token"]').attr('content');
             const data = {
                 product_name: $('#editProductName').val(),
                 price: $('#editProductPrice').val(),
@@ -363,7 +348,6 @@
         $(document).ready(function() {
             fetchProducts();
 
-            // Delete product event
             $(document).on('click', '.delete-product', function() {
                 const productId = $(this).data('id');
                 if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này không?')) {
@@ -371,7 +355,6 @@
                 }
             });
 
-            // Edit product event
             $(document).on('click', '.edit-product', function() {
                 const productId = $(this).data('id');
                 editProduct(productId);

@@ -54,7 +54,7 @@
     <div class="sidebar" id="sidebar">
         <h5 class="text-center mb-3">Menu</h5>
         <nav class="nav flex-column">
-        <a class="nav-link" href="{{URL::to('/adusers')}}">Quản lý người dùng</a>
+            <a class="nav-link" href="{{URL::to('/adusers')}}">Quản lý người dùng</a>
             <a class="nav-link" href="{{URL::to('/adproduct')}}">Quản lý sản phẩm</a>
             <a class="nav-link active" href="{{URL::to('/adcategory')}}">Quản lý danh mục</a>
             <a class="nav-link" href="{{URL::to('/addiscount')}}">Quản lý giảm giá</a>
@@ -130,7 +130,7 @@
                                 <option value="cancelled">Đã hủy</option>
                             </select>
                         </div>
-                        <button class="btn btn-primary add-order">Thêm</button>
+                        <button type="submit" class="btn btn-primary add-order">Thêm</button>
                     </form>
                 </div>
             </div>
@@ -172,7 +172,7 @@
                 success: function (data) {
                     const orders = $('#orderTable');
                     orders.empty();
-                    data.forEach(function(order) {
+                    data.data.forEach(function(order) {
                         const row = `
                             <tr id="order-${order.id}">
                                 <td>${order.id}</td>
@@ -198,7 +198,8 @@
         }
 
         // Add order
-        function addOrder() {
+        function addOrder(event) {
+            event.preventDefault();
             const data = {
                 customer_name: $('#customerName').val(),
                 address: $('#address').val(),
@@ -252,33 +253,33 @@
                     const row = `
                         <div class="mb-3">
                             <label for="editCustomerName" class="form-label">Tên Khách Hàng</label>
-                            <input type="text" class="form-control" id="editCustomerName" value="${data.customer_name}" required>
+                            <input type="text" class="form-control" id="editCustomerName" value="${data.data.customer_name}" required>
                         </div>
                         <div class="mb-3">
                             <label for="editAddress" class="form-label">Địa Chỉ</label>
-                            <input type="text" class="form-control" id="editAddress" value="${data.address}" required>
+                            <input type="text" class="form-control" id="editAddress" value="${data.data.address}" required>
                         </div>
                         <div class="mb-3">
                             <label for="editPhone" class="form-label">Số Điện Thoại</label>
-                            <input type="text" class="form-control" id="editPhone" value="${data.phone}" required>
+                            <input type="text" class="form-control" id="editPhone" value="${data.data.phone}" required>
                         </div>
                         <div class="mb-3">
                             <label for="editPaymentMethod" class="form-label">Phương Thức Thanh Toán</label>
-                            <input type="text" class="form-control" id="editPaymentMethod" value="${data.payment_method}" required>
+                            <input type="text" class="form-control" id="editPaymentMethod" value="${data.data.payment_method}" required>
                         </div>
                         <div class="mb-3">
                             <label for="editTotalAmount" class="form-label">Tổng Tiền</label>
-                            <input type="number" class="form-control" id="editTotalAmount" value="${data.total_amount}" required>
+                            <input type="number" class="form-control" id="editTotalAmount" value="${data.data.total_amount}" required>
                         </div>
                         <div class="mb-3">
                             <label for="editOrderStatus" class="form-label">Trạng Thái</label>
                             <select class="form-select" id="editOrderStatus" required>
-                                <option value="pending" ${data.status === 'pending' ? 'selected' : ''}>Chờ xử lý</option>
-                                <option value="completed" ${data.status === 'completed' ? 'selected' : ''}>Hoàn thành</option>
-                                <option value="cancelled" ${data.status === 'cancelled' ? 'selected' : ''}>Đã hủy</option>
+                                <option value="pending" ${data.data.status === 'pending' ? 'selected' : ''}>Chờ xử lý</option>
+                                <option value="completed" ${data.data.status === 'completed' ? 'selected' : ''}>Hoàn thành</option>
+                                <option value="cancelled" ${data.data.status === 'cancelled' ? 'selected' : ''}>Đã hủy</option>
                             </select>
                         </div>
-                        <button class="btn btn-primary update-order" data-id="${data.id}">Lưu</button>
+                        <button type="button" class="btn btn-primary update-order" data-id="${data.data.id}">Lưu</button>
                     `;
                     orders.empty().append(row);
                 },
@@ -316,10 +317,7 @@
         $(document).ready(function() {
             loadOrders();
 
-            $(document).on('click', '.add-order', function(event) {
-                event.preventDefault();
-                addOrder();
-            });
+            $(document).on('click', '.add-order', addOrder);
 
             $(document).on('click', '.delete-order', function(event) {
                 event.preventDefault();

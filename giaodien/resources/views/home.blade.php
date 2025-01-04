@@ -94,16 +94,16 @@
                         <h2>Mức giá sản phẩm</h2>
                         <div class="filter-price ">
                             <label class="checkbox-item">
-                                <input type="checkbox" class="filter-price-checkbox" value="0-10"> 0 - 10 triệu
+                                <input type="checkbox" class="filter-price-checkbox" value="0-10000000"> 0 - 10 triệu
                             </label>
                             <label class="checkbox-item">
-                                <input type="checkbox" class="filter-price-checkbox" value="10-20"> 10 - 20 triệu
+                                <input type="checkbox" class="filter-price-checkbox" value="10000000-20000000"> 10 - 20 triệu
                             </label>
                             <label class="checkbox-item">
-                                <input type="checkbox" class="filter-price-checkbox" value="20-50"> 20 - 50 triệu
+                                <input type="checkbox" class="filter-price-checkbox" value="20000000-50000000"> 20 - 50 triệu
                             </label>
                             <label class="checkbox-item">
-                                <input type="checkbox" class="filter-price-checkbox" value="50-100"> 50 - 100 triệu
+                                <input type="checkbox" class="filter-price-checkbox" value="50000000-100000000"> 50 - 100 triệu
                             </label>
                         </div>
                     </div><!--/brands_products-->

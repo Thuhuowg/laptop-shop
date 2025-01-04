@@ -195,15 +195,15 @@ fetchProducts();
 const addFilterEvent = () => {
     document.getElementById('filter-btn').addEventListener('click', async () => {
         const category_id = document.getElementById('category_id').value;
-        const price = document.getElementById('price').value;
+        const priceRanges = document.getElementById('price').value; // Lấy giá từ input
 
         try {
-            const response = await fetch(`http://127.0.0.1:8000/api/v1/filter-products?category_id=${category_id}&price=${price}`);
+            const response = await fetch(`http://127.0.0.1:8000/api/products/filter?category_id=${category_id}&price_range=${priceRanges}`);
             if (!response.ok) {
                 throw new Error('Lỗi khi lọc sản phẩm');
             }
             const products = await response.json();
-            renderAvailableProducts(products.data.products); // Cập nhật danh sách sản phẩm sau khi lọc
+            renderAvailableProducts(products.data); // Cập nhật danh sách sản phẩm sau khi lọc
         } catch (error) {
             console.error('Lỗi khi lọc sản phẩm:', error);
             const productsList = document.getElementById('products-list');
@@ -211,6 +211,3 @@ const addFilterEvent = () => {
         }
     });
 };
-
-// Gọi sự kiện lọc
-addFilterEvent();
